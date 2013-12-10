@@ -4,12 +4,13 @@
   <!-- general -->
   <flip_horizontal type="int">1</flip_horizontal>
   <flip_vertical type="int">1</flip_vertical>
+  <transpose type="int">1</transpose>
   <debug type="int">1</debug>
   <use_as_default type="int">1</use_as_default>
   <extrapolate_picture_count type="int">9</extrapolate_picture_count>
   <mag1 type="string">100x,100.0,0.0,0.0</mag1>
-  <mag2 type="string">10x,10.03,236.0,-10.0</mag2>
-  <mag3 type="string">2x,2.00,42.0,-414.0</mag3>
+  <mag2 type="string">10x,10.03,220.0,-10.0</mag2>
+  <mag3 type="string">2x,2.00,176.0,-60.0</mag3>
 
   <!-- capture -->
   <directory type="string">c:\users\data\</directory>
