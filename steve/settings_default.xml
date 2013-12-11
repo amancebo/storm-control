@@ -4,10 +4,7 @@
   <!-- general -->
   <flip_horizontal type="int">1</flip_horizontal>
   <flip_vertical type="int">1</flip_vertical>
-<<<<<<< HEAD
   <transpose type="int">0</transpose>
-=======
->>>>>>> d3cc594c80ebe095cfff114dfd1eba97501fc581
   <debug type="int">1</debug>
   <use_as_default type="int">1</use_as_default>
   <extrapolate_picture_count type="int">9</extrapolate_picture_count>
