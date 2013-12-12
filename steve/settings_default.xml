@@ -2,8 +2,8 @@
 <settings>
 
   <!-- general -->
-  <flip_horizontal type="int">0</flip_horizontal>
-  <flip_vertical type="int">0</flip_vertical>
+  <flip_horizontal type="int">1</flip_horizontal>
+  <flip_vertical type="int">1</flip_vertical>
   <transpose type="int">0</transpose>
 
   <debug type="int">1</debug>
