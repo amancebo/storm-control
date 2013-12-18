@@ -29,7 +29,7 @@ class Prism2QIlluminationControlWidget(illuminationControl.QIlluminationControlW
         # setup the Cube communication threads
         self.cube405_queue = commandQueues.QSerialLaserComm(cube405.Cube405("COM4"))
         self.cube405_queue.start(QtCore.QThread.NormalPriority)
-        self.cube445_queue = commandQueues.QSerialLaserComm(cube445.Cube445("COM3"))
+        self.cube445_queue = commandQueues.QSerialLaserComm(cube445.Cube445("COM1"))
         self.cube445_queue.start(QtCore.QThread.NormalPriority)
 
         # setup for NI communication (analog, camera synced)
