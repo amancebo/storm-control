@@ -66,6 +66,20 @@
     <dig_line type="int">4</dig_line>
   </block>
   <block>
+    <description type="text">460</description>
+    <color type="rgb">100,0,255</color>
+    <channel type="int">5</channel>
+    <min_voltage type="float">0.0</min_voltage>
+    <max_voltage type="float">2.0</max_voltage>
+    <use_aotf type="boolean">TRUE</use_aotf>
+    <frequency type="float">141.97</frequency>
+    <amplitude type="int">5500</amplitude>
+    <aotf_channel type="int">5</aotf_channel>
+    <ni_board type="string">PCI-6722</ni_board>
+    <dig_line type="int">5</dig_line>
+  </block>
+<!--
+  <block>
     <description type="text">445</description>
     <color type="rgb">100,0,255</color>
     <channel type="int">5</channel>
@@ -78,6 +92,7 @@
     <ni_board type="string">PCI-6722</ni_board>
     <dig_line type="int">5</dig_line>
   </block>
+-->
   <block>
     <description type="text">405</description>
     <color type="rgb">255,0,255</color>
