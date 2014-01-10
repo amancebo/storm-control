@@ -22,9 +22,11 @@
     <module type="string">storm4IlluminationControl</module>
   </illumination>
 
+  <!--
   <joystick>
     <module type="string">gamepad310JoystickControl</module>
   </joystick>
+  -->
 
   <!--
   <misc_control>
@@ -36,9 +38,11 @@
     <module type="string">storm4ShutterControl</module>
   </shutters>
 
+  <!--
   <stage>
     <module type="string">storm4StageControl</module>
   </stage>
+  -->
 
   <!--
   <temperature_logger>
