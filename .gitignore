@@ -18,3 +18,9 @@ Desktop.ini
 #############
 *.py[co]
 
+#########################
+## STORM4 specific files
+########################
+cam_offsets_1.txt
+cam_offsets_2.txt
+cam_offsets_3.txt
