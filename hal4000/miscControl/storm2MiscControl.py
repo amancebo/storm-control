@@ -14,7 +14,7 @@ from PyQt4 import QtCore, QtGui
 import miscControl
 
 # Debugging
-import halLib.hdebug as hdebug
+import sc_library.hdebug as hdebug
 
 # UIs.
 import qtdesigner.storm2_misc_ui as miscControlsUi
@@ -28,7 +28,7 @@ import phidgets.phidget as phidget
 #
 class AMiscControl(miscControl.MiscControl):
     @hdebug.debug
-    def __init__(self, parameters, tcp_control, camera_widget, parent = None):
+    def __init__(self, hardware, parameters, tcp_control, camera_widget, parent = None):
         super(AMiscControl, self).__init__(parameters, tcp_control, camera_widget, parent)
 
         self.filter_wheel = ix2ucb.IX2UCB(port = "COM8")

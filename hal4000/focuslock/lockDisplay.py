@@ -14,7 +14,7 @@ import numpy
 from PyQt4 import QtCore, QtGui
 
 # Debugging
-import halLib.hdebug as hdebug
+import sc_library.hdebug as hdebug
 
 # UIs.
 import qtdesigner.lockdisplay_ui as lockdisplayUi
@@ -209,10 +209,10 @@ class LockDisplay(QtGui.QWidget):
     # Handles the IR laser button. Turns the laser on/off and
     # updates the button accordingly.
     #
-    # @param bool Dummy parameter.
+    # @param boolean Dummy parameter.
     #
     @hdebug.debug
-    def handleIrButton(self, bool):
+    def handleIrButton(self, boolean):
         if self.ir_state:
             self.ir_laser.off()
             self.ir_state = False
