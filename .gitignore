@@ -16,7 +16,7 @@ Desktop.ini
 #############
 ## Python
 #############
-*.py[co]
+*.py[co~]
 
 #########################
 ## STORM4 specific files
