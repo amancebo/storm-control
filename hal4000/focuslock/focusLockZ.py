@@ -147,7 +147,7 @@ class FocusLockZ(QtGui.QDialog, halModule.HalModule):
             if (signal[1] == "commMessage"):
                 signal[2].connect(self.handleCommMessage)
 
-            if (signal[1] == "jstickLockJump"):
+            if (signal[1] == "lockJump"):
                 signal[2].connect(self.jump)
 
     ## getLockTarget
@@ -164,7 +164,9 @@ class FocusLockZ(QtGui.QDialog, halModule.HalModule):
     #
     @hdebug.debug
     def getSignals(self):
-        return [[self.hal_type, "tcpComplete", self.tcpComplete]]
+        return [[self.hal_type, "tcpComplete", self.tcpComplete],
+                [self.hal_type, "focusLockStatus", self.lock_display1.lockStatus],
+                [self.hal_type, "focusLockDisplay", self.lock_display1.lockDisplay]]
 
     ## handleCommMessage
     #
