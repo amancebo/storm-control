@@ -188,12 +188,12 @@ class STORM2ShutterControl(shutterControl.ShutterControl):
         for channel in self.dig_shutter_channels:
             nicontrol.setDigitalLine(self.board, channel, False)
 
-    def setup(self, kinetic_cycle_time):
+    def setup(self):
         #
         # the counter runs slightly faster than the camera so that it is ready
         # to catch the next camera "fire" immediately after the end of the cycle.
         #
-        frequency = (1.001/kinetic_cycle_time) * float(self.oversampling)
+        frequency = (1.001/self.kinetic_value) * float(self.oversampling)
 
         # set up the analog channels
         self.ao_task = nicontrol.WaveformOutput(self.board, 0)
