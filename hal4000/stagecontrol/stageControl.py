@@ -4,105 +4,176 @@
 #
 # The stage control UI.
 #
-# Hazen 9/12
+# Hazen 02/14
 #
 
 from PyQt4 import QtCore, QtGui
 
 import qtWidgets.qtAppIcon as qtAppIcon
 
+import halLib.halModule as halModule
+
 # Debugging
-import halLib.hdebug as hdebug
+import sc_library.hdebug as hdebug
 
 # UIs.
 import qtdesigner.stage_ui as stageUi
+
+
+## MotionButton
+#
+# Encapsulate the handling and display of the motion buttons.
+#
+class MotionButton(QtCore.QObject):
+    buttonClicked = QtCore.pyqtSignal(float, float)
+    
+    ## __init__
+    #
+    # @param button A PyQT Button object.
+    # @param icon The filename of the image to use for the button icon.
+    # @param type Either "large" or "small"
+    # @param xval -1, 0, 1 for motion on the x-axis of the stage.
+    # @param yval -1, 0, 1 for motion on the y-axis of the stage.
+    # @param parent (optional) The PyQt parent of this object.
+    #
+    def __init__(self, button, icon, type, xval, yval, parent = None):
+        QtCore.QObject.__init__(self, parent)
+        self.step_size = 1.0
+        self.type = type
+        self.xval = float(xval)
+        self.yval = float(yval)
+
+        self.button = button
+        self.button.setIcon(QtGui.QIcon(icon))
+        self.button.setIconSize(QtCore.QSize(56, 56))
+        self.button.clicked.connect(self.handleClicked)
+
+    ## handleClicked
+    #
+    # @param boolean Dummy parameter
+    #
+    def handleClicked(self, boolean):
+        self.buttonClicked.emit(self.xval * self.step_size, self.yval * self.step_size)
+
+    ## setStepSize
+    #
+    # @param small_step_size The small step size.
+    # @param large_step_size The large step size.
+    #
+    def setStepSize(self, small_step_size, large_step_size):
+        if (self.type == "small"):
+            self.step_size = small_step_size
+        else:
+            self.step_size = large_step_size
+        
+
+## Translator
+#
+# Encapsulate going from the camera coordinate system to
+# the stage coordinate system.
+#
+class Translator():
+    
+    ## __init__
+    #
+    # Create default translator object.
+    #
+    def __init__(self):
+        self.camera_x_sign = 1.0
+        self.camera_y_sign = 1.0
+        self.camera_flip_axis = 0
+        self.flip_axis = 0
+        self.x_sign = 1.0
+        self.y_sign = 1.0
+
+    ## newParameters
+    #
+    # Update orientation adjustments based on settings.
+    #
+    def newParameters(self, parameters):
+        self.flip_axis = parameters.flip_axis
+        self.x_sign = parameters.x_sign
+        self.y_sign = parameters.y_sign
+
+        if hasattr(parameters, "camera1"):
+            parameters = getattr(parameters, "camera1")
+
+        self.camera_x_sign = 1
+        if (parameters.flip_horizontal):
+            self.camera_x_sign = -1
+
+        self.camera_y_sign = 1
+        if (parameters.flip_vertical):
+            self.camera_y_sign = -1
+
+        if self.flip_axis:
+            [self.camera_x_sign, self.camera_y_sign] = [self.camera_y_sign, self.camera_x_sign]
+
+        self.camera_flip_axis = 0
+        if (parameters.transpose):
+            self.camera_flip_axis = 1
+            self.camera_x_sign = -1 * self.camera_x_sign
+            self.camera_y_sign = -1 * self.camera_y_sign
+
+    ## translate
+    #
+    # @param x The input x value
+    # @param y The input y value
+    #
+    # @return [tx, ty] The translated values.
+    #
+    def translate(self, x, y):
+
+        # "default" transform first.
+        tx = x * self.x_sign
+        ty = y * self.y_sign
+        if self.flip_axis:
+            [tx, ty] = [ty, tx]
+
+        # "camera" transform next.
+        tx = tx * self.camera_x_sign
+        ty = ty * self.camera_y_sign
+        if self.camera_flip_axis:
+            [tx, ty] = [ty, tx]
+
+        return [tx, ty]
+
 
 ## StageControl
 #
 # Stage Control Dialog Box
 #
 # This is the UI for stage control based on some sort 
-# of motorized stage.
+# of motorized stage. It should be sub-classed and
+# the sub-class should provide the stage to control
+# as property (self.stage). Typically the self.stage
+# will be a QStageThread object for buffering purposes.
 #
-#  Methods called by HAL:
-#
-#    getStagePosition()
-#      Return the current stage position.
-#
-#    jog(x_speed, y_speed)
-#      Move stage at the velocity given by x_speed and
-#      y_speed (microns / second).
-#
-#    newParameters(parameters)
-#      Update stage settings with the new parameters.
-#
-#    quit()
-#      Cleanup and shutdown prior to the program ending.
-#
-#    show()
-#      Display the stage control dialog box.
-#
-#    startLockout()
-#      Lockout the joystick.
-#
-#    step(x_step, y_step)
-#      Move the stage by x_step in x, y_step in y (in microns).
-#
-#    stopLockout()
-#      Turn off joystick lockout
-#
-#
-# The motorized stage class must provide the following methods:
-#
-# getStatus()
-#   Returns True if the stage is alive and running, False otherwise.
-#
-# goAbsolution(x, y)
-#   Go to position x, y (in um)
-#
-# goRelative(dx, dy)
-#   Change position by dx in x, dy in y (in um).
-#
-# jog(sx, sy)
-#   Jog at a speed given by sx, sy in um/second
-#
-# joystickLockout(flag)
-#   Stage ignores the joystick controller if flag
-#   is True.
-#
-# position()
-#   Returns [x, y, z] stage position (in um).
-#
-# setVelocity(vx, vy)
-#   Set maximum stage velocity in x and y (in mm/sec).
-#
-# shutDown()
-#   Cleanup prior to the program quitting.
-#
-# zero()
-#   Define the current position as zero.
-#
-class StageControl(QtGui.QDialog):
+class StageControl(QtGui.QDialog, halModule.HalModule):
 
     ## __init__
     #
     # @param parameters A parameters object.
-    # @param tcp_control A TCP/IP control object.
-    # @param parent (Optional) The PyQt parent of this object.
+    # @param parent The PyQt parent of this object.
     #
     @hdebug.debug
-    def __init__(self, parameters, tcp_control, parent):
+    def __init__(self, parameters, parent):
         QtGui.QMainWindow.__init__(self, parent)
-        self.locked_out = False
-        self.parameters = parameters
-        self.position_update_timer = QtCore.QTimer(self)
-        self.position_update_timer.setInterval(500)
-        self.tcp_control = tcp_control
+        halModule.HalModule.__init__(self)
+        #self.setFocusPolicy(QtCore.Qt.ClickFocus)
+
+        self.directory = ""
+        self.drag_start_x = 0
+        self.drag_start_y = 0
+        self.stage_x = 0
+        self.stage_y = 0
+        self.stage_z = 0
+        self.translator = Translator()
 
         if parent:
-            self.have_parent = 1
+            self.have_parent = True
         else:
-            self.have_parent = 0
+            self.have_parent = False
 
         # UI setup
         self.ui = stageUi.Ui_Dialog()
@@ -110,27 +181,19 @@ class StageControl(QtGui.QDialog):
         self.setWindowTitle(parameters.setup_name + " Stage Control")
         self.setWindowIcon(qtAppIcon.QAppIcon())
 
-        self.ui.leftSButton.setIcon(QtGui.QIcon("./icons/1leftarrow-128.png"))
-        self.ui.leftSButton.setIconSize(QtCore.QSize(56, 56))
-        self.ui.leftLButton.setIcon(QtGui.QIcon("./icons/2leftarrow-128.png"))
-        self.ui.leftLButton.setIconSize(QtCore.QSize(56, 56))
+        # UI motion buttons.
+        icon_path = "./icons/"
+        self.motion_buttons = [MotionButton(self.ui.leftSButton, icon_path + "1leftarrow-128.png", "small", 1, 0),
+                               MotionButton(self.ui.leftLButton, icon_path + "2leftarrow-128.png", "large", 1, 0),
+                               MotionButton(self.ui.rightSButton, icon_path + "1rightarrow-128.png", "small", -1, 0),
+                               MotionButton(self.ui.rightLButton, icon_path + "2rightarrow-128.png", "large", -1, 0),
+                               MotionButton(self.ui.upSButton, icon_path + "1uparrow-128.png", "small", 0, 1),
+                               MotionButton(self.ui.upLButton, icon_path + "2uparrow-128.png", "large", 0, 1),
+                               MotionButton(self.ui.downSButton, icon_path + "1downarrow1-128.png", "small", 0, -1),
+                               MotionButton(self.ui.downLButton,  icon_path + "2dowarrow-128.png", "large", 0, -1)]
 
-        self.ui.rightSButton.setIcon(QtGui.QIcon("./icons/1rightarrow-128.png"))
-        self.ui.rightSButton.setIconSize(QtCore.QSize(56, 56))
-        self.ui.rightLButton.setIcon(QtGui.QIcon("./icons/2rightarrow-128.png"))
-        self.ui.rightLButton.setIconSize(QtCore.QSize(56, 56))
-
-        self.ui.upSButton.setIcon(QtGui.QIcon("./icons/1uparrow-128.png"))
-        self.ui.upSButton.setIconSize(QtCore.QSize(56, 56))
-        self.ui.upLButton.setIcon(QtGui.QIcon("./icons/2uparrow-128.png"))
-        self.ui.upLButton.setIconSize(QtCore.QSize(56, 56))
-
-        self.ui.downSButton.setIcon(QtGui.QIcon("./icons/1downarrow1-128.png"))
-        self.ui.downSButton.setIconSize(QtCore.QSize(56, 56))
-        self.ui.downLButton.setIcon(QtGui.QIcon("./icons/2dowarrow-128.png"))
-        self.ui.downLButton.setIconSize(QtCore.QSize(56, 56))
-
-        self.ui.joystickLockoutButton.hide()
+        for button in self.motion_buttons:
+            button.buttonClicked.connect(self.moveRelative)
 
         # connect signals
         if self.have_parent:
@@ -139,51 +202,34 @@ class StageControl(QtGui.QDialog):
         else:
             self.ui.okButton.setText("Quit")
             self.ui.okButton.clicked.connect(self.handleQuit)
-        self.position_update_timer.timeout.connect(self.updatePosition)
-        self.ui.zeroButton.clicked.connect(self.zero)
-        self.ui.leftSButton.clicked.connect(self.leftS)
-        self.ui.leftLButton.clicked.connect(self.leftL)
-        self.ui.rightSButton.clicked.connect(self.rightS)
-        self.ui.rightLButton.clicked.connect(self.rightL)
-        self.ui.upSButton.clicked.connect(self.upS)
-        self.ui.upLButton.clicked.connect(self.upL)
-        self.ui.downSButton.clicked.connect(self.downS)
-        self.ui.downLButton.clicked.connect(self.downL)
-        self.ui.homeButton.clicked.connect(self.handleHome)
-        self.ui.goButton.clicked.connect(self.handleGo)
-        self.ui.joystickLockoutButton.clicked.connect(self.handleLockout)
+
         self.ui.addButton.clicked.connect(self.handleAdd)
         self.ui.clearButton.clicked.connect(self.handleClear)
+        self.ui.goButton.clicked.connect(self.handleGo)
+        self.ui.homeButton.clicked.connect(self.handleHome)
         self.ui.loadButton.clicked.connect(self.handleLoad)
         self.ui.saveButton.clicked.connect(self.handleSave)
         self.ui.saveComboBox.activated.connect(self.handleSaveIndexChange)
-
-        # tcp signals
-        if self.tcp_control:
-            self.connect(self.tcp_control, QtCore.SIGNAL("moveTo(float, float)"), self.tcpHandleMoveTo)
+        self.ui.zeroButton.clicked.connect(self.zero)
 
         # set modeless
         self.setModal(False)
 
         # open connection to the stage
-        self.small_step_size = 10.0
-        self.large_step_size = 50.0
-        self.x_sign = -1
-        self.y_sign = 1
-        if parameters:
-            self.newParameters(parameters)
-        self.x_axis = 1
-        self.x = 0
-        self.y = 0
-        self.z = 0
         if not(self.stage.getStatus()):
             print "Failed to connect to the microscope stage. Perhaps it is turned off?"
             self.stage.shutDown()
-            self.stage = 0
+            self.stage = False
         else:
+            self.stage.updatePosition.connect(self.handleUpdatePosition)
             self.stage.setVelocity(parameters.stage_speed, parameters.stage_speed)
-        self.updatePosition()
-        self.position_update_timer.start()
+
+    ## cleanup
+    #
+    @hdebug.debug
+    def cleanup(self):
+        if self.stage:
+            self.stage.shutDown()
 
     ## closeEvent
     #
@@ -196,38 +242,36 @@ class StageControl(QtGui.QDialog):
         if self.have_parent:
             event.ignore()
             self.hide()
-        else:
-            self.quit()
 
-    ## downS
+    ## connectSignals
     #
-    # Move down one small step.
-    #
-    # @param bool Dummy parameter.
+    # @param signals An array of signals that we might be interested in connecting to.
     #
     @hdebug.debug
-    def downS(self, bool):
-        self.moveRelative(1, self.small_step_size)
+    def connectSignals(self, signals):
+        for signal in signals:
+            
+            # Comm signals
+            if (signal[1] == "commGotConnection"):
+                signal[2].connect(self.startLockout)
+            elif (signal[1] == "commLostConnection"):
+                signal[2].connect(self.stopLockout)
+            if (signal[1] == "commMessage"):
+                signal[2].connect(self.handleCommMessage)
 
-    ## downL
-    #
-    # Move down one large step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def downL(self, bool):
-        self.moveRelative(1, self.large_step_size)
+            # Joystick signals.
+            elif (signal[1] == "jstickMotion"):
+                signal[2].connect(self.jog)
 
-    ## getStagePosition
-    #
-    # @return [stage x, stage y, stage z]
-    #
-    @hdebug.debug
-    def getStagePosition(self):
-        if self.stage:
-            self.updatePosition()
-        return [self.x, self.y, self.z]
+            # Drag signals
+            elif (signal[1] == "dragStart"):
+                signal[2].connect(self.handleDragStart)
+            elif (signal[1] == "dragMove"):
+                signal[2].connect(self.handleDragMove)
+
+            # Motion signals
+            elif (signal[1] == "stepMove"):
+                signal[2].connect(self.moveRelative)
 
     ## handleAdd
     #
@@ -237,8 +281,8 @@ class StageControl(QtGui.QDialog):
     #
     @hdebug.debug
     def handleAdd(self, bool):
-        self.ui.saveComboBox.addItem("{0:.1f}, {1:.1f}".format(self.x, self.y),
-                                     [self.x, self.y])
+        self.ui.saveComboBox.addItem("{0:.1f}, {1:.1f}".format(self.stage_x, self.stage_y),
+                                     [self.stage_x, self.stage_y])
         self.ui.saveComboBox.setCurrentIndex(self.ui.saveComboBox.count()-1)
 
     ## handleClear
@@ -250,6 +294,45 @@ class StageControl(QtGui.QDialog):
     @hdebug.debug
     def handleClear(self, bool):
         self.ui.saveComboBox.clear()
+
+    ## handleCommMessage
+    #
+    # Handles all the message from tcpControl.
+    #
+    # @param message A tcpControl.TCPMessage object.
+    #
+    @hdebug.debug
+    def handleCommMessage(self, message):
+
+        m_type = message.getType()
+        m_data = message.getData()
+
+        if (m_type == "moveTo"):
+            self.moveAbsolute(m_data[0], m_data[1])
+
+    ## handleDragMove
+    #
+    # This is motion relative to a fixed point. The expected inputs are
+    # displacements (in um) from the fixed point (previously recorded
+    # with handleDragStart().
+    #
+    # @param drag_x_disp Offset distance in x in microns.
+    # @param drag_y_disp Offset distance in y in microns.
+    #
+    def handleDragMove(self, drag_x_disp, drag_y_disp):
+        if self.stage:
+            [dx, dy] = self.translator.translate(drag_x_disp, drag_y_disp)
+            self.stage.dragMove(self.drag_start_x + dx,
+                                self.drag_start_y + dy)
+
+    ## handleDragStart
+    #
+    # Record the current stage position for drag events.
+    #
+    @hdebug.debug
+    def handleDragStart(self):
+        self.drag_start_x = self.stage_x
+        self.drag_start_y = self.stage_y
 
     ## handleGo
     #
@@ -283,7 +366,7 @@ class StageControl(QtGui.QDialog):
     def handleLoad(self, bool):
         positions_filename = str(QtGui.QFileDialog.getOpenFileName(self,
                                                                    "Load Positions",
-                                                                   self.parameters.directory,
+                                                                   self.directory,
                                                                    "*.txt"))
         if positions_filename:
             self.handleClear()
@@ -296,23 +379,6 @@ class StageControl(QtGui.QDialog):
                                              [x, y])
             self.ui.saveComboBox.setCurrentIndex(self.ui.saveComboBox.count()-1)
 
-    ## handleLockout
-    #
-    # Handles locking out the (stage) joystick.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def handleLockout(self, bool):
-        if self.locked_out:
-            self.stopLockout()
-            self.locked_out = False
-            self.ui.joystickLockoutButton.setStyleSheet("QPushButton { color: red }")
-        else:
-            self.startLockout()
-            self.locked_out = True
-            self.ui.joystickLockoutButton.setStyleSheet("QPushButton { color: green }")        
-
     ## handleOk
     #
     # Hide the window.
@@ -322,6 +388,19 @@ class StageControl(QtGui.QDialog):
     @hdebug.debug
     def handleOk(self, bool):
         self.hide()
+
+    ## handleUpdatePosition
+    #
+    # @param stage_x The stage position in x in microns.
+    # @param stage_y The stage position in y in microns.
+    # @param stage_z The stage position in z in microns.
+    #
+    def handleUpdatePosition(self, stage_x, stage_y, stage_z):
+        self.stage_x = stage_x
+        self.stage_y = stage_y
+        self.stage_z = stage_z
+        self.ui.xposText.setText("%.3f" % self.stage_x)
+        self.ui.yposText.setText("%.3f" % self.stage_y)
 
     ## handleQuit
     #
@@ -343,7 +422,7 @@ class StageControl(QtGui.QDialog):
     def handleSave(self, bool):
         positions_filename = str(QtGui.QFileDialog.getSaveFileName(self, 
                                                                    "Save Positions", 
-                                                                   self.parameters.directory, 
+                                                                   self.directory, 
                                                                    "*.txt"))
         if positions_filename and (self.ui.saveComboBox.count() > 0):
             fp = open(positions_filename, "w")
@@ -373,60 +452,21 @@ class StageControl(QtGui.QDialog):
     # @param y_speed The speed to move the stage in y.
     #
     def jog(self, x_speed, y_speed):
-        self.stage.jog(x_speed, y_speed)
-
-    ## keyPressEvent
-    #
-    # @param event A PyQt key press event.
-    #
-    @hdebug.debug
-    def keyPressEvent(self, event):
-        key = event.key()
-        if key == 52:
-            self.leftS()
-        elif key == 56:
-            self.upS()
-        elif key == 54:
-            self.rightS()
-        elif key == 50:
-            self.downS()
-
-    ## leftS
-    #
-    # Move left one small step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def leftS(self, bool):
-        self.moveRelative(0, self.small_step_size)
-
-    ## leftL
-    #
-    # Move left one large step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def leftL(self, bool):
-        self.moveRelative(0, self.large_step_size)
+        if self.stage:
+            [tx, ty] = self.translator.translate(x_speed, y_speed)
+            self.stage.jog(tx, ty)
 
     ## moveRelative
     #
     # Move relative to the current position.
     #
-    # @param axis The axis to move.
-    # @param distance The distance to move in microns.
+    # @param dx The amount to move in x (in microns).
+    # @param dy The amount to move in y (in microns).
     #
-    @hdebug.debug        
-    def moveRelative(self, axis, distance):
+    def moveRelative(self, dx, dy):
         if self.stage:
-            if axis == self.x_axis:
-                self.stage.goRelative(distance * self.x_sign, 0)
-            else:
-                self.stage.goRelative(0, distance * self.y_sign)
-#            [self.x, self.y, self.z] = self.stage.position()
-            self.updatePosition()
+            [tx, ty] = self.translator.translate(dx, dy)
+            self.stage.goRelative(tx, ty)
 
     ## moveAbsolute
     #
@@ -439,8 +479,6 @@ class StageControl(QtGui.QDialog):
     def moveAbsolute(self, x, y):
         if self.stage:
             self.stage.goAbsolute(x, y)
-#            [self.x, self.y, self.z] = self.stage.position()
-            self.updatePosition()
 
     ## newParameters
     #
@@ -448,116 +486,47 @@ class StageControl(QtGui.QDialog):
     #
     @hdebug.debug    
     def newParameters(self, parameters):
-        self.parameters = parameters
-        self.small_step_size = int(parameters.small_step_size)
-        self.large_step_size = int(parameters.large_step_size)
-        if parameters.x_sign > 0:
-            self.x_sign = 1
-        else:
-            self.x_sign = -1
-        if parameters.y_sign > 0:
-            self.y_sign = 1
-        else:
-            self.y_sign = -1
+        self.directory = parameters.directory
+        self.translator.newParameters(parameters)
+        for button in self.motion_buttons:
+            button.setStepSize(parameters.small_step_size, parameters.large_step_size)
 
-    ## quit
+    ## startFilm
     #
-    # Shut down the stage hardware on program exit.
+    # @param film_name The name of the film without any extensions, or False if the film is not being saved.
+    # @param run_shutters True/False the shutters should be run or not.
     #
     @hdebug.debug
-    def quit(self):
-        if self.stage:
-            self.stage.shutDown()
-
-    ## rightS
-    #
-    # Move right one small step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def rightS(self, bool):
-        self.moveRelative(0, -1 * self.small_step_size)
-
-    ## rightL
-    #
-    # Move right one large step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def rightL(self, bool):
-        self.moveRelative(0, -1 * self.large_step_size)
+    def startFilm(self, film_name, run_shutters):
+        self.startLockout()
 
     ## startLockout
-    #
-    # Lock out the stage control joystick.
     #
     @hdebug.debug
     def startLockout(self):
         if self.stage:
             self.stage.lockout(True)
 
-    ## step
+    ## stopFilm
     #
-    # Move a relative distance in x, y.
+    # Called at when filming is complete. The writer is passed to the modules
+    # so that they can (optionally) add any module specific data to the film's
+    # meta-data (the .inf file).
     #
-    # @param x The x step in microns.
-    # @param y The y step in microns.
+    # @param film_writer The film writer object.
     #
     @hdebug.debug
-    def step(self, x, y):
-        self.stage.goRelative(x, y)
+    def stopFilm(self, film_writer):
+        self.stopLockout()
+        if film_writer:
+            film_writer.setStagePosition([self.stage_x, self.stage_y, self.stage_z])
 
     ## stopLockout
-    #
-    # Turn off the lockout of the stage control joystick.
     #
     @hdebug.debug
     def stopLockout(self):
         if self.stage:
             self.stage.lockout(False)
-
-    ## tcpHandleMoveTo
-    #
-    # Handle move requests from the tcp object.
-    #
-    # @param x The x position in um.
-    # @param y The y position in um.
-    #
-    @hdebug.debug
-    def tcpHandleMoveTo(self, x, y):
-        self.moveAbsolute(x, y)
-
-    ## updatePosition
-    #
-    # This is called every 1/2 second to update the stage position display.
-    #
-    def updatePosition(self):
-        if self.stage:
-            [self.x, self.y, self.z] = self.stage.position()
-        self.ui.xposText.setText("%.3f" % self.x)
-        self.ui.yposText.setText("%.3f" % self.y)
-
-    ## upS
-    #
-    # Move up one small step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def upS(self, bool):
-        self.moveRelative(1, -1 * self.small_step_size)
-
-    ## upL
-    #
-    # Move up one large step.
-    #
-    # @param bool Dummy parameter.
-    #
-    @hdebug.debug
-    def upL(self, bool):
-        self.moveRelative(1, -1 * self.large_step_size)
 
     ## zero
     #
@@ -567,16 +536,14 @@ class StageControl(QtGui.QDialog):
     #
     @hdebug.debug
     def zero(self, bool):
-        self.stage.zero()
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.updatePosition()
+        if self.stage:
+            self.stage.zero()
+        self.handleUpdatePosition(0, 0, 0)
 
 #
 # The MIT License
 #
-# Copyright (c) 2009 Zhuang Lab, Harvard University
+# Copyright (c) 2014 Zhuang Lab, Harvard University
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal

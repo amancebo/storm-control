@@ -21,7 +21,7 @@
 from PyQt4 import QtCore, QtGui
 
 # Debugging
-import halLib.hdebug as hdebug
+import sc_library.hdebug as hdebug
 
 ## Camera
 #
@@ -47,6 +47,16 @@ class Camera(QtGui.QDialog):
     def cameraInit(self):
         pass
 
+    ## connectSignals
+    #
+    # @param signals An array of signals that we might be interested in connecting to.
+    #
+    @hdebug.debug
+    def connectSignals(self, signals):
+        for signal in signals:
+            if (signal[1] == "newCycleLength"):
+                signal[2].connect(self.setSyncMax)
+
     ## getCameraDisplay
     #
     # Return the camera display frame for the purposes of
@@ -56,17 +66,6 @@ class Camera(QtGui.QDialog):
     # @return False, The default camera has no display.
     #
     def getCameraDisplay(self):
-        return False
-
-    ## getCameraDisplayArea
-    #
-    # Return the sub-region of the camera display where the
-    # camera images are actually shown. This is used by the
-    # misc controls on some setups.
-    #
-    # @return False, The default camera has no display area.
-    #
-    def getCameraDisplayArea(self):
         return False
 
     ## getFilmSize
@@ -89,6 +88,14 @@ class Camera(QtGui.QDialog):
     #
     def getRecordButton(self):
         return False
+
+    ## getSignals
+    #
+    # @return The signals this module provides.
+    #
+    @hdebug.debug
+    def getSignals(self):
+        return []
 
     ## newParameters
     #

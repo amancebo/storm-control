@@ -17,8 +17,12 @@ import sys
 # The base class for displaying data from a camera.
 #
 class QCameraWidget(QtGui.QWidget):
+    displayCaptured = QtCore.pyqtSignal(object)
+    dragStart = QtCore.pyqtSignal()
+    dragMove = QtCore.pyqtSignal(float, float)
     intensityInfo = QtCore.pyqtSignal(int, int, int)
     mousePress = QtCore.pyqtSignal(int, int)
+    roiSelection = QtCore.pyqtSignal(object)
 
     ## __init__
     #
@@ -27,8 +31,17 @@ class QCameraWidget(QtGui.QWidget):
     #
     def __init__(self, parameters, parent = None):
         QtGui.QWidget.__init__(self, parent)
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.setMouseTracking(True)
 
         self.buffer = False
+
+        # These are for dragging (to move the stage).
+        self.ctrl_key_down = False
+        self.drag_mode = False
+        self.drag_multiplier = parameters.drag_multiplier
+        self.drag_x = 0
+        self.drag_y = 0
 
         self.flip_horizontal = parameters.flip_horizontal
         self.flip_vertical = parameters.flip_vertical
@@ -41,6 +54,11 @@ class QCameraWidget(QtGui.QWidget):
         # This is the amount of image magnification.
         # Only integer values are allowed.
         self.magnification = 1
+        
+        self.mouse_x = 0
+        self.mouse_y = 0
+
+        self.roi_rubber_band = False
 
         self.show_grid = False
         self.show_info = True
@@ -118,6 +136,58 @@ class QCameraWidget(QtGui.QWidget):
         margin = int(0.1 * float(self.image_max - self.image_min))
         return [self.image_min - margin, self.image_max + margin]
 
+    ## getEventLocation
+    #
+    # Returns the location of an external event in the window, normalized
+    # to 0.0 - 1.0.
+    #
+    # @param event A PyQt event object.
+    #
+    # @return [event x (0.0 - 1.0), event y (0.0 - 1.0)]
+    #
+    def getEventLocation(self, event):
+        event_pos = self.mapFromGlobal(event.globalPos())
+        return [float(event_pos.x())/float(self.x_final),
+                float(event_pos.y())/float(self.y_final)]
+
+    ## keyPressEvent
+    #
+    # @param event A PyQt key press event.
+    #
+    def keyPressEvent(self, event):
+        if (event.key() == QtCore.Qt.Key_Control):
+            self.ctrl_key_down = True
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
+
+    ## keyReleaseEvent
+    #
+    # @param event A PyQt key release event
+    #
+    def keyReleaseEvent(self, event):
+        if (event.key() == QtCore.Qt.Key_Control):
+            self.ctrl_key_down = False
+            if not self.drag_mode:
+                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        
+    ## mouseMoveEvent
+    #
+    # @param event A PyQt mouse move event.
+    #
+    def mouseMoveEvent(self, event):
+        self.mouse_x = event.x()
+        self.mouse_y = event.y()
+
+        if self.roi_rubber_band:
+            self.roi_rubber_band.setGeometry(QtCore.QRect(self.roi_rubber_band.pos(), event.pos()).normalized())
+
+        #
+        # FIXME: Need to also adjust for binning, current magnification..
+        #
+        if self.drag_mode:
+            dx = self.drag_multiplier * (self.mouse_x - self.drag_x)
+            dy = self.drag_multiplier * (self.mouse_y - self.drag_y)
+            self.dragMove.emit(dx, dy)
+
     ## mousePressEvent
     #
     # Convert the mouse click location into camera pixels. The xy 
@@ -128,16 +198,55 @@ class QCameraWidget(QtGui.QWidget):
     # @param event A PyQt mouse press event.
     #
     def mousePressEvent(self, event):
+
+        # Point/pixel selection.
         self.x_click = event.x() * self.x_size / self.x_final
         self.y_click = event.y() * self.y_size / self.y_final
-
+        
         if (self.x_click >= self.x_size):
             self.x_click = self.x_size - 1
         if (self.y_click >= self.y_size):
             self.y_click = self.y_size - 1
-
+        
         self.mousePress.emit(self.x_click, self.y_click)
 
+        if self.ctrl_key_down:
+            self.drag_mode = True
+            self.dragStart.emit()
+            self.drag_x = event.x()
+            self.drag_y = event.y()
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ClosedHandCursor))
+
+        # ROI selection rubber band.
+        else:
+            if not self.roi_rubber_band:
+                self.roi_rubber_band = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle, self)
+            self.roi_rubber_band.setGeometry(QtCore.QRect(event.pos(), QtCore.QSize()))
+            self.roi_rubber_band.show()
+
+    ## mouseReleaseEvent
+    #
+    # @param event A PyQt mouse move event.
+    #
+    def mouseReleaseEvent(self, event):
+
+        if self.drag_mode:
+            self.drag_mode = False
+            if self.ctrl_key_down:
+                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
+            else:
+                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+
+        else:
+            self.roi_rubber_band.hide()
+            rect = self.roi_rubber_band.geometry()
+            if (rect.width() > 1) and (rect.height() > 1):
+                left = rect.left() * self.x_size / self.x_final
+                top = rect.top() * self.y_size / self.y_final
+                width = rect.width() * self.x_size / self.x_final
+                height = rect.height() * self.y_size / self.y_final
+                self.roiSelection.emit(QtCore.QRect(left, top, width, height))
+        
     ## newColorTable
     #
     # Note that the color table of the image that is being displayed 
@@ -157,6 +266,7 @@ class QCameraWidget(QtGui.QWidget):
     def newParameters(self, parameters, colortable, display_range):
         self.colortable = colortable
         self.display_range = display_range
+        self.drag_multiplier = parameters.drag_multiplier
         self.flip_horizontal = parameters.flip_horizontal
         self.flip_vertical = parameters.flip_vertical
         self.transpose = parameters.transpose
@@ -210,6 +320,13 @@ class QCameraWidget(QtGui.QWidget):
             # Transfer the buffer to the screen.
             painter = QtGui.QPainter(self)
             painter.drawPixmap(0, 0, self.buffer)
+
+            # Draw a version for any external devices that want a copy
+            # of whatever is currently displayed by this widget.
+            a_pixmap = QtGui.QPixmap(vr.width(), vr.height())
+            painter = QtGui.QPainter(a_pixmap)
+            painter.drawImage(a_pixmap.rect(), self.image, vr)
+            self.displayCaptured.emit(a_pixmap)
 
     ## setColorTable
     #
@@ -325,30 +442,6 @@ class QCameraWidget(QtGui.QWidget):
                 if ((x_loc >= 0) and (x_loc < w) and (y_loc >= 0) and (y_loc < h)):
                     value = image_data[y_loc, x_loc]
                     self.intensityInfo.emit(x_loc, y_loc, value)
-
-#    #
-#    # This is called after initialization to get the correct 
-#    # default size based on the size of the scroll area as 
-#    # specified using QtDesigner.
-#    #
-#    def updateSize(self):
-#        self.x_final = self.width()
-#        self.x_view = self.width()
-#        self.y_final = self.height()
-#        self.y_view = self.height()
-
-#    def wheelEvent(self, event):
-#        if (event.delta() > 0):
-#            self.magnification += 1
-#        else:
-#            self.magnification -= 1
-#        
-#        if (self.magnification < 1):
-#            self.magnification = 1
-#        if (self.magnification > 8):
-#            self.magnification = 8
-#
-#        self.calcFinalSize()
 
 
 #

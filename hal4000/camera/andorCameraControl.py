@@ -14,7 +14,7 @@ import platform
 import traceback
 
 # Debugging
-import halLib.hdebug as hdebug
+import sc_library.hdebug as hdebug
 
 import camera.frame as frame
 import camera.cameraControl as cameraControl
@@ -247,7 +247,7 @@ class ACameraControl(cameraControl.CameraControl):
     #
     @hdebug.debug
     def newParameters(self, parameters):
-        self.initCamera()
+        #self.initCamera()
         p = parameters
         self.reversed_shutter = p.reversed_shutter
         try:
