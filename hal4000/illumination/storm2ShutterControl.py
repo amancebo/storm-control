@@ -18,8 +18,8 @@ import nationalInstruments.nicontrol as nicontrol
 import illumination.shutterControl as shutterControl
 
 class AShutterControl(shutterControl.ShutterControl):
-    def __init__(self, powerToVoltage):
-        shutterControl.ShutterControl.__init__(self, powerToVoltage)
+    def __init__(self, powerToVoltage, parent):
+        shutterControl.ShutterControl.__init__(self, powerToVoltage, parent)
         self.oversampling_default = 100
         self.number_channels = 5
         

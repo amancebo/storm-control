@@ -55,6 +55,8 @@ class QPriorZ(QtCore.QObject):
 # will cause the whole UI to behave a bit jerkily.
 #
 class QPriorThread(QtCore.QThread):
+    updatePosition = QtCore.pyqtSignal(float, float, float)
+    
     def __init__(self, parent = None):
         QtCore.QThread.__init__(self, parent)
         global prior_stage
@@ -97,6 +99,8 @@ class QPriorThread(QtCore.QThread):
             self.mutex.unlock()
             self.msleep(500)
 
+        ## HB Question: Should updatePosition be emitted from here??
+
     def setVelocity(self, vx, vy):
         self.mutex.lock()
         self.stage.setVelocity(vx, vy)
@@ -118,12 +122,11 @@ class QPriorThread(QtCore.QThread):
 # with Prior motorized stage.
 #
 class AStageControl(stageControl.StageControl):
-    def __init__(self, hardware, parameters, tcp_control, parent = None):
+    def __init__(self, hardware, parameters, parent = None):
         self.stage = QPriorThread()
         self.stage.start(QtCore.QThread.NormalPriority)
         stageControl.StageControl.__init__(self,
                                            parameters,
-                                           tcp_control,
                                            parent)
 
 #
