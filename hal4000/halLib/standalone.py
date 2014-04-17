@@ -33,6 +33,7 @@ def runModule(module_type):
 
     if found:
         app.exec_()
+        instance.cleanup()
     else:
         print module_type, "not found for", setup_name, "setup"
 
