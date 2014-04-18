@@ -13,7 +13,7 @@
   <mag2 type="string">4x,3.93,28.0,362.0</mag2>
 
   <!-- capture -->
-  <directory type="string">c:\users\data\</directory>
+  <directory type="string">c:\data\</directory>
   <image_filename type="string">steve</image_filename>
   <pixels_to_um type="float">0.156</pixels_to_um>
   <!-- <magnification type="float">1.0</magnification> -->
