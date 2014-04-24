@@ -10,7 +10,9 @@
   <use_as_default type="int">1</use_as_default>
   <extrapolate_picture_count type="int">9</extrapolate_picture_count>
   <mag1 type="string">100x,100.0,0.0,0.0</mag1>
-  <mag2 type="string">4x,3.93,28.0,362.0</mag2>
+  <mag2 type="string">60x,60.0,0.0,0.0</mag2>
+  <mag3 type="string">10x,10.0,0.0,0.0</mag3>
+  <mag4 type="string">4x,3.93,28.0,362.0</mag4>
 
   <!-- capture -->
   <directory type="string">c:\data\</directory>
