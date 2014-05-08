@@ -12,14 +12,15 @@ from PyQt4 import QtGui
 
 import sc_library.parameters as params
 
-def runModule(module_type):
+def runModule(module_type, setup_name = False):
     app = QtGui.QApplication(sys.argv)
 
     parameters = params.Parameters("settings_default.xml")
-    setup_name = parameters.setup_name
-    parameters = params.Parameters(setup_name + "_default.xml", is_HAL = True)
+    if not setup_name:
+        setup_name = parameters.setup_name
+    parameters = params.Parameters("xml/" + setup_name + "_default.xml", is_HAL = True)
     parameters.setup_name = setup_name
-    hardware = params.Hardware(setup_name + "_hardware.xml")
+    hardware = params.Hardware("xml/" + setup_name + "_hardware.xml")
 
     found = False
     for module in hardware.modules:
@@ -27,12 +28,14 @@ def runModule(module_type):
             a_module = __import__(module.module_name, globals(), locals(), [setup_name], -1)
             a_class = getattr(a_module, module.class_name)
             instance = a_class(module.parameters, parameters, None)
+            instance.newParameters(parameters)
             instance.show()
             found = True
             break
 
     if found:
         app.exec_()
+        instance.cleanup()
     else:
         print module_type, "not found for", setup_name, "setup"
 
