@@ -15,7 +15,7 @@
   <!-- capture -->
   <directory type="string">c:\data\</directory>
   <image_filename type="string">steve</image_filename>
-  <pixels_to_um type="float">0.167</pixels_to_um>
+  <pixels_to_um type="float">0.160</pixels_to_um>
 
   <!-- position rectangles & section circles -->
   <rectangle_size type="float">43.0</rectangle_size>
