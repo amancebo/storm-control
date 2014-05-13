@@ -20,7 +20,7 @@ import sc_library.hdebug as hdebug
 import qtdesigner.storm4_misc_ui as miscControlsUi
 
 # Control
-import olympus.ix2ucb as ix2ucb
+import sc_hardware.olympus.ix2ucb as ix2ucb
 
 #
 # Misc Control Dialog Box
@@ -30,7 +30,7 @@ class AMiscControl(miscControl.MiscControl):
     def __init__(self, hardware, parameters, parent = None):
         miscControl.MiscControl.__init__(self, parameters, parent)
 
-        self.filter_wheel = ix2ucb.IX2UCB(port = "COM12")
+        self.filter_wheel = ix2ucb.IX2UCB(port = "COM3")
         if (not self.filter_wheel.getStatus()):
             self.filter_wheel = False
 

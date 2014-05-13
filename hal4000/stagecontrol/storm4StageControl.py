@@ -10,7 +10,7 @@
 from PyQt4 import QtCore
 
 # stage.
-import marzhauser.marzhauser as marzhauser
+import sc_hardware.marzhauser.marzhauser as marzhauser
 
 # stage control thread
 import stagecontrol.stageThread as stageThread
@@ -24,7 +24,7 @@ import stagecontrol.stageControl as stageControl
 #
 class AStageControl(stageControl.StageControl):
     def __init__(self, hardware, parameters, parent = None):
-        self.stage = stageThread.QStageThread(marzhauser.MarzhauserRS232("COM6", wait_time = 1.0e-3))
+        self.stage = stageThread.QStageThread(marzhauser.MarzhauserRS232("COM4", wait_time = 1.0e-3))
         self.stage.start(QtCore.QThread.NormalPriority)
         stageControl.StageControl.__init__(self, 
                                            parameters,
