@@ -17,19 +17,10 @@
       <module_name>sc_hardware.coherent.hLaser</module_name>
       <class_name>CoherentCube</class_name>
       <parameters>
-	<port>COM3</port>
+	<port>COM9</port>
       </parameters>
     </control_module>
 
-    <control_module>
-      <name>cube445</name>
-      <module_name>sc_hardware.coherent.hLaser</module_name>
-      <class_name>CoherentCube</class_name>
-      <parameters>
-	<port>COM5</port>
-      </parameters>
-    </control_module>
-    
     <control_module>
       <name>daq</name>
       <module_name>sc_hardware.nationalInstruments.hNicontrol</module_name>
@@ -45,19 +36,19 @@
 
   <channels>
 
-    <!-- 657 laser -->
+    <!-- 647 laser -->
     <channel>
-      <description>657</description>
+      <description>647</description>
       <color type="rgb">255,0,0</color>
       
       <amplitude_modulation>
 	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">7600</maximum>
+	  <maximum type="int">7857</maximum>
 	  <channel type="int">0</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">88.60</on_frequency>
+	  <on_frequency type="float">90.36</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -66,18 +57,10 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">0</channel>
-	  <max_voltage type="float">2.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">0</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
@@ -90,10 +73,10 @@
 	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">6400</maximum>
+	  <maximum type="int">7000</maximum>
 	  <channel type="int">1</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">107.71</on_frequency>
+	  <on_frequency type="float">107.92</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -102,18 +85,10 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">1</channel>
-	  <max_voltage type="float">2.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">1</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
@@ -126,10 +101,10 @@
 	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">6500</maximum>
+	  <maximum type="int">6571</maximum>
 	  <channel type="int">2</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">115.62</on_frequency>
+	  <on_frequency type="float">115.82</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -138,34 +113,26 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">2</channel>
-	  <max_voltage type="float">2.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">2</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
     <!-- 514 laser -->
     <channel>
       <description>514</description>
-      <color type="rgb">0,255,100</color>
+      <color type="rgb">0,255,128</color>
       
       <amplitude_modulation>
 	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">6400</maximum>
+	  <maximum type="int">6500</maximum>
 	  <channel type="int">3</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">121.53</on_frequency>
+	  <on_frequency type="float">121.26</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -174,34 +141,26 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">3</channel>
-	  <max_voltage type="float">2.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">3</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
     <!-- 488 laser -->
     <channel>
       <description>488</description>
-      <color type="rgb">0,255,255</color>
+      <color type="rgb">0,0,255</color>
       
       <amplitude_modulation>
 	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">5800</maximum>
+	  <maximum type="int">6143</maximum>
 	  <channel type="int">4</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">130.52</on_frequency>
+	  <on_frequency type="float">130.58</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -210,31 +169,26 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">4</channel>
-	  <max_voltage type="float">2.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">4</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
-    <!-- 445 laser -->
+    <!-- 457 laser -->
     <channel>
-      <description>445</description>
-      <color type="rgb">100,0,255</color>
+      <description>457</description>
+      <color type="rgb">128,0,255</color>
 
       <amplitude_modulation>
-	<uses>cube445</uses>
+	<uses>AOTF</uses>
 	<display_normalized type="boolean">True</display_normalized>
 	<parameters>
-	  <maximum type="int">4000</maximum>
+	  <maximum type="int">5786</maximum>
+	  <channel type="int">5</channel>
+	  <off_frequency type="float">20.0</off_frequency>
+	  <on_frequency type="float">143.36</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
@@ -243,18 +197,10 @@
 	<parameters>
 	  <board>PCI-6722</board>
 	  <channel type="int">5</channel>
-	  <max_voltage type="float">5.0</max_voltage>
+	  <max_voltage type="float">6.0</max_voltage>
 	  <min_voltage type="float">0.0</min_voltage>
 	</parameters>
       </analog_modulation>
-
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">5</channel>
-	</parameters>
-      </mechanical_shutter>
 
     </channel>
 
@@ -281,33 +227,7 @@
 	</parameters>
       </analog_modulation>
 
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">6</channel>
-	</parameters>
-      </mechanical_shutter>
-
     </channel>
-
-    <!-- Lamp -->
-    <channel>
-      <description>White</description>
-      <color type="rgb">255,255,255</color>
-      
-      <analog_modulation>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6722</board>
-	  <channel type="int">7</channel>
-	  <max_voltage type="float">5.0</max_voltage>
-	  <min_voltage type="float">0.0</min_voltage>
-	</parameters>
-      </analog_modulation>
-
-    </channel>
-
 
   </channels>
 
