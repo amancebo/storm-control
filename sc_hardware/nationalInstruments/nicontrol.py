@@ -30,6 +30,7 @@ DAQmx_Val_RSE = 10083
 DAQmx_Val_NRSE = 10078
 DAQmx_Val_Diff = 10106
 DAQmx_Val_PseudoDiff = 12529
+DAQmx_Val_Task_Verify = 2
 
 TaskHandle = c_ulong
 
@@ -153,6 +154,15 @@ class NIDAQTask():
         #done = c_long(0)
         checkStatus(nidaqmx.DAQmxIsTaskDone(self.taskHandle, None))
         return done.value
+
+    ## verifyTask
+    #
+    # Verify the task.
+    #
+    # @return The task status.
+    #
+    def verifyTask(self):
+        return nidaqmx.DAQmxTaskControl(self.taskHandle, c_int(DAQmx_Val_Task_Verify))
 
 
 ## AnalogOutput
@@ -376,6 +386,7 @@ class AnalogWaveformOutput(NIDAQTask):
                                                   c_rising,
                                                   c_long(sample_mode),
                                                   c_ulonglong(waveform_len)))
+        print "ao task status (1):", self.verifyTask()
 
         # Transfer the waveform data to the DAQ board buffer.
         data_len = len(waveform)
@@ -392,6 +403,8 @@ class AnalogWaveformOutput(NIDAQTask):
                                                 byref(self.c_waveform), 
                                                 byref(c_samples_written), 
                                                 None))
+        print "ao task status (2):", self.verifyTask()
+        print ""
         assert c_samples_written.value == waveform_len, "Failed to write the right number of samples " + str(c_samples_written.value) + " " + str(waveform_len)
 
 
@@ -613,6 +626,7 @@ class DigitalWaveformOutput(NIDAQTask):
                                                   c_rising,
                                                   c_long(sample_mode),
                                                   c_ulonglong(waveform_len)))
+        print "do task status (1):", self.verifyTask()
 
         # transfer the waveform data to the DAQ board buffer.
         data_len = len(waveform)
@@ -632,6 +646,9 @@ class DigitalWaveformOutput(NIDAQTask):
                                                    byref(self.c_waveform), 
                                                    byref(c_samples_written), 
                                                    None))
+        print "do task status (2):", self.verifyTask()
+        print ""
+
         assert c_samples_written.value == waveform_len, "Failed to write the right number of samples " + str(c_samples_written.value) + " " + str(waveform_len)
 
 #
