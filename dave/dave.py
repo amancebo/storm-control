@@ -78,16 +78,19 @@ class CommandEngine(QtGui.QWidget):
         self.current_action = None
         self.command = None
         self.should_pause = False
-        self.command_duration = []
-        self.command_disk_usage = []
+        self.command_duration = 0
+        self.command_disk_usage = 0
         
         self.test_mode = False
         
         # HAL Client
-        self.HALClient = tcpClient.TCPClient(port = 9000, server_name = "HAL")
+        self.HALClient = tcpClient.TCPClient(port = 9000,
+                                             server_name = "HAL",
+                                             verbose = True)
         
         # Kilroy Client
-        self.kilroyClient = tcpClient.TCPClient(port = 9500, server_name = "Kilroy")
+        self.kilroyClient = tcpClient.TCPClient(port = 9500,
+                                                server_name = "Kilroy")
     
     ## abort
     #
@@ -107,6 +110,11 @@ class CommandEngine(QtGui.QWidget):
     #
     @hdebug.debug
     def loadCommand(self, command):
+
+        # Reset command duration and disk usage
+        self.command_duration = 0.0
+        self.command_disk_usage = 0.0
+
         # Re-Initialize state of command_engine
         self.actions = []
         self.current_action = None
@@ -158,9 +166,6 @@ class CommandEngine(QtGui.QWidget):
             self.current_action.complete_signal.connect(self.handleActionComplete)
             self.current_action.error_signal.connect(self.handleErrorSignal)
 
-            # Reset command duration and disk usage
-            self.command_duration = 0.0
-            self.command_disk_usage = 0.0
             # Start current action
             self.current_action.start()
 
@@ -521,8 +526,9 @@ class Dave(QtGui.QMainWindow):
         else:
             recipe_parser = recipeParser.XMLRecipeParser(verbose = True)
             output_filename = recipe_parser.parseXML()
-            if os.path.isfile(output_filename):
-                self.newSequence(output_filename)
+            if output_filename is not None:
+                if os.path.isfile(output_filename):
+                    self.newSequence(output_filename)
             
     ## handleNotifierChange
     #
