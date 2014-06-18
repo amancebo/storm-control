@@ -63,7 +63,7 @@ def createTableWidget(text):
 #
 class CommandEngine(QtGui.QWidget):
     done = QtCore.pyqtSignal()
-    idle = QtCore.pyqtSignal(bool)
+    paused = QtCore.pyqtSignal()
     problem = QtCore.pyqtSignal(object)
     
     ## __init__
@@ -78,16 +78,19 @@ class CommandEngine(QtGui.QWidget):
         self.current_action = None
         self.command = None
         self.should_pause = False
-        self.command_duration = []
-        self.command_disk_usage = []
+        self.command_duration = 0
+        self.command_disk_usage = 0
         
         self.test_mode = False
         
         # HAL Client
-        self.HALClient = tcpClient.TCPClient(port = 9000, server_name = "HAL")
+        self.HALClient = tcpClient.TCPClient(port = 9000,
+                                             server_name = "HAL",
+                                             verbose = True)
         
         # Kilroy Client
-        self.kilroyClient = tcpClient.TCPClient(port = 9500, server_name = "Kilroy")
+        self.kilroyClient = tcpClient.TCPClient(port = 9500,
+                                                server_name = "Kilroy")
     
     ## abort
     #
@@ -107,6 +110,11 @@ class CommandEngine(QtGui.QWidget):
     #
     @hdebug.debug
     def loadCommand(self, command):
+
+        # Reset command duration and disk usage
+        self.command_duration = 0.0
+        self.command_disk_usage = 0.0
+
         # Re-Initialize state of command_engine
         self.actions = []
         self.current_action = None
@@ -135,6 +143,8 @@ class CommandEngine(QtGui.QWidget):
                 self.actions.append(daveActions.SetDirectory(self.HALClient, command.directory))
             if command.length > 0:
                 self.actions.append(daveActions.TakeMovie(self.HALClient, command))
+            if hasattr(command, "pause"):
+                self.actions.append(daveActions.DavePause(command.pause))
         elif command_type == "fluidics":
             self.actions.append(daveActions.DaveActionValveProtocol(self.kilroyClient, command))
 
@@ -142,14 +152,6 @@ class CommandEngine(QtGui.QWidget):
         if self.test_mode:
             for action in self.actions:
                 action.message.setTestMode(True)  
-
-    ## getPause
-    #
-    # Returns the current pause request state of the command engine
-    #
-    def getPause(self):
-        if self.test_mode: return False
-        else: return self.should_pause
     
     ## startCommand
     #
@@ -164,9 +166,6 @@ class CommandEngine(QtGui.QWidget):
             self.current_action.complete_signal.connect(self.handleActionComplete)
             self.current_action.error_signal.connect(self.handleErrorSignal)
 
-            # Reset command duration and disk usage
-            self.command_duration = 0.0
-            self.command_disk_usage = 0.0
             # Start current action
             self.current_action.start()
 
@@ -195,12 +194,13 @@ class CommandEngine(QtGui.QWidget):
         # Configure the command engine to pause after completion of the command sequence
         if self.current_action.shouldPause() and not self.test_mode:
             self.should_pause = True
+            self.paused.emit()  
         
         if len(self.actions) > 0:
             self.startCommand()
         else:
             self.done.emit()
-        
+            
     ## handleErrorSignal
     #
     # Handle an error signal
@@ -250,6 +250,7 @@ class Dave(QtGui.QMainWindow):
         self.command_engine = CommandEngine()
         self.command_engine.done.connect(self.handleDone)
         self.command_engine.problem.connect(self.handleProblem)
+        self.command_engine.paused.connect(self.handlePauseFromCommandEngine)
 
         self.updateGUI()
 
@@ -474,21 +475,19 @@ class Dave(QtGui.QMainWindow):
                 self.command_engine.HALClient.stopCommunication()
             if self.needs_kilroy:
                 self.command_engine.kilroyClient.stopCommunication()
-        
-        # Issue the command
-        self.issueCommand()
 
-        # Check whether to proceed with the next command or pause
-        if self.command_engine.getPause():
-            self.running = False
-        if self.running: #Proceed to next command
-            self.command_engine.startCommand()
-        else: # Handle pause state (not running with an intermediate command_index)
-            if self.command_index > 0 and self.command_index < len(self.commands):
-                self.ui.runButton.setText("Restart")
-                self.ui.runButton.setEnabled(True)
-                self.ui.selectCommandButton.setEnabled(True)
-                print "\7\7" # Provide audible acknowledgement of pause
+            # Issue first command
+            self.issueCommand()
+        else: # Continue with next command.
+
+            # Issue the command.
+            self.issueCommand()
+
+            #Check for requested pause.
+            if self.running: 
+                self.command_engine.startCommand()
+            else: 
+                self.handlePause()
 
     ## handleDropXML
     #
@@ -527,8 +526,9 @@ class Dave(QtGui.QMainWindow):
         else:
             recipe_parser = recipeParser.XMLRecipeParser(verbose = True)
             output_filename = recipe_parser.parseXML()
-            if os.path.isfile(output_filename):
-                self.newSequence(output_filename)
+            if output_filename is not None:
+                if os.path.isfile(output_filename):
+                    self.newSequence(output_filename)
             
     ## handleNotifierChange
     #
@@ -543,6 +543,32 @@ class Dave(QtGui.QMainWindow):
                                 self.ui.fromPasswordLineEdit.text(),
                                 self.ui.toAddressLineEdit.text())
 
+    ## handlePause
+    #
+    # Handles a generic pause request. 
+    #
+    @hdebug.debug
+    def handlePause(self):
+        self.running = False
+        print "\7\7" # Provide audible acknowledgement of pause.
+
+        # Update run button text and status.
+        if self.command_index >= 0 and self.command_index < (len(self.commands)-1):
+            self.ui.runButton.setText("Restart")
+            self.ui.runButton.setEnabled(True)
+            self.ui.selectCommandButton.setEnabled(True)
+        else:
+            self.ui.runButton.setText("Start")
+
+
+    ## handlePauseFromCommandEngine
+    #
+    # Handles a pause request from the command engine. 
+    #
+    @hdebug.debug
+    def handlePauseFromCommandEngine(self):
+        self.running = False
+
     ## handleProblem
     #
     # Handles the problem signal from the movie engine. Notifies the operator by e-mail if requested.
@@ -555,8 +581,16 @@ class Dave(QtGui.QMainWindow):
         current_command_name = str(self.commands[self.command_index].getDetails()[1][1])
         message_str = current_command_name + "\n" + message.getErrorMessage()
         if not self.test_mode:
-            self.ui.runButton.setText("Restart")
-            self.running = False
+            # Pause Dave.
+            self.handlePause()
+
+            # Stop TCP communication.
+            if self.needs_hal:
+                self.command_engine.HALClient.stopCommunication()
+            if self.needs_kilroy:
+                self.command_engine.kilroyClient.stopCommunication()
+            
+            # Display errors.
             if (self.ui.errorMsgCheckBox.isChecked()):
                 self.notifier.sendMessage("Acquisition Problem",
                                           message_str)
@@ -564,12 +598,6 @@ class Dave(QtGui.QMainWindow):
                                           "Acquisition Problem",
                                           message_str)
 
-            # Stop TCP communication
-            if self.needs_hal:
-                self.command_engine.HALClient.stopCommunication()
-            if self.needs_kilroy:
-                self.command_engine.kilroyClient.stopCommunication()
-            
         else: # Test mode
             self.is_command_valid[self.command_index] = False
             message_str += "\nSuppress remaining warnings?"
@@ -596,7 +624,7 @@ class Dave(QtGui.QMainWindow):
     #
     @hdebug.debug
     def handleRunButton(self, boolean):
-        if (self.running): # Pause
+        if (self.running): # Request pause.
             self.ui.runButton.setText("Pausing..")
             self.ui.runButton.setEnabled(False) #Inactivate button until current action is complete
             self.running = False
