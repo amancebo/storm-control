@@ -112,14 +112,14 @@ class MathChannels(Channels):
             channel_initial_spin_box.setGeometry(x_positions[2], 2, 68, 18)
             channel_initial_spin_box.setDecimals(4)
             channel_initial_spin_box.setMaximum(1.0)
-            channel_initial_spin_box.setValue(parameters.pstart_value)
+            channel_initial_spin_box.setValue(parameters.get("pstart_value"))
             channel_initial_spin_box.setSingleStep(0.0001)
 
             # increment
             channel_inc_spin_box = QtGui.QDoubleSpinBox(channel_frame)
             channel_inc_spin_box.setGeometry(x_positions[3], 2, 68, 18)
             channel_inc_spin_box.setDecimals(4)
-            channel_inc_spin_box.setValue(parameters.pinc_value)
+            channel_inc_spin_box.setValue(parameters.get("pinc_value"))
             channel_inc_spin_box.setSingleStep(0.0001)
 
             # time to increment
@@ -127,7 +127,7 @@ class MathChannels(Channels):
             channel_time_spin_box.setGeometry(x_positions[4], 2, 68, 18)
             channel_time_spin_box.setMinimum(100)
             channel_time_spin_box.setMaximum(100000)
-            channel_time_spin_box.setValue(parameters.pframe_value)
+            channel_time_spin_box.setValue(parameters.get("pframe_value"))
             channel_time_spin_box.setSingleStep(100)
             
             self.channels.append([channel_active_check_box,
@@ -389,7 +389,8 @@ class FileChannels(Channels):
 class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     incPower = QtCore.pyqtSignal(int, float)
     setPower = QtCore.pyqtSignal(int, float)
-
+    tcpComplete = QtCore.pyqtSignal(object)
+    
     ## __init__
     #
     # This initializes things and sets up the UI of the power control
@@ -419,7 +420,7 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
         # UI setup
         self.ui = progressionUi.Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowTitle(parameters.setup_name + " Progression Control")
+        self.setWindowTitle(parameters.get("setup_name") + " Progression Control")
         self.setWindowIcon(qtAppIcon.QAppIcon())
 
         # connect signals
@@ -515,7 +516,8 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     @hdebug.debug
     def getSignals(self):
         return [[self.hal_type, "incPower", self.incPower],
-                [self.hal_type, "setPower", self.setPower]]
+                [self.hal_type, "setPower", self.setPower],
+                [self.hal_type, "tcpComplete", self.tcpComplete]]
 
     ## handleCommMessage
     #
@@ -525,19 +527,35 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     #
     @hdebug.debug
     def handleCommMessage(self, message):
+        if (message.getType() == "Set Progression"):
+            if not message.isTest():
+                if (message.getData("type") == "lockedout"):
+                    self.tcpHandleProgressionLockout()
+                elif (message.getData("type") == "file"):
+                    self.tcpHandleProgressionType(message.getData("type"))
+                    self.tcpHandleProgressionFile(message.getData("filename"))
+                else:
+                    self.tcpHandleProgressionType(message.getData("type"))
+                    for channel in message.getData("channels"):
+                        self.tcpHandleProgressionSet(channel[0],
+                                                     channel[1],
+                                                     channel[2],
+                                                     channel[3])
+            else:
+                if (message.getData("type") == "file"):
+                    if not (message.getData("filename") == None):
+                        full_path = os.path.abspath(message.getData("filename"))
+                        if not os.path.exists(full_path):
+                            err_message = str(message.getData("filename"))
+                            err_message += " is not a valid path."
+                            message.setError(True, err_message)
+                    else:
+                        err_message += "No filename provided."
+                        message.setError(True, err_message) 
 
-        m_type = message.getType()
-        m_data = message.getData()
-
-        if (m_type == "progressionLockout"):
-            self.tcpHandleProgressionLockout()
-        elif (m_type == "progressionFile"):
-            self.tcpHandleProgressionFile(m_data[0])
-        elif (m_type == "progressionSet"):
-            self.tcpHandleProgressionSet(m_data[0], m_data[1], m_data[2], m_data[3])
-        elif (m_type == "progressionType"):
-            self.tcpHandleProgressionType(m_data[0])
-
+            self.tcpComplete.emit(message)
+            
+        
     ## handleOk
     #
     # This is called when the user presses the close button. It hides
@@ -558,9 +576,9 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     @hdebug.debug
     def handleProgCheck(self, state):
         if state:
-            self.parameters.use_progressions = True
+            self.parameters.set("use_progressions", True)
         else:
-            self.parameters.use_progressions = False
+            self.parameters.set("use_progressions", False)
 
     ## handleQuit
     #
@@ -584,10 +602,11 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     #
     def newFrame(self, frame, filming):
         if filming and self.channels and frame.master:
-            [active, increment] = self.channels.newFrame(frame.number)
-            for i in range(len(active)):
-                if active[i]:
-                    self.incPower.emit(int(i), increment[i])
+            if (frame.number > 0):
+                [active, increment] = self.channels.newFrame(frame.number)
+                for i in range(len(active)):
+                    if active[i]:
+                        self.incPower.emit(int(i), increment[i])
 
     ## newParameters
     #
@@ -600,7 +619,7 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     @hdebug.debug
     def newParameters(self, parameters):
         self.parameters = parameters
-        if parameters.use_progressions:
+        if parameters.get("use_progressions"):
             self.ui.progressionsCheckBox.setChecked(True)
         else:
             self.ui.progressionsCheckBox.setChecked(False)
@@ -615,7 +634,7 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     def newPowerFile(self, bool):
         power_filename = QtGui.QFileDialog.getOpenFileName(self,
                                                            "New Power File",
-                                                           str(self.parameters.directory),
+                                                           str(self.parameters.get("directory")),
                                                            "*.power")
         if power_filename:
             self.ui.filenameLabel.setText(power_filename[-40:])
@@ -647,7 +666,7 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     #
     def startFilm(self, film_name, run_shutters):
         self.channels = False
-        if (self.isVisible() and self.parameters.use_progressions):
+        if (self.isVisible() and self.parameters.get("use_progressions")):
             # determine which tab is active.
             if self.ui.linearTab.isVisible():
                 self.channels = self.linear_channels
@@ -685,7 +704,7 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
         if os.path.exists(filename):
             self.ui.filenameLabel.setText(filename[-40:])
             self.file_channels.newFile(filename)
-
+        
     ## tcpHandleProgressionSet
     #
     # Handles TCP/IP signal to set the values of a math channel.
@@ -697,6 +716,10 @@ class ProgressionControl(QtGui.QDialog, halModule.HalModule):
     #
     @hdebug.debug
     def tcpHandleProgressionSet(self, channel, start_power, frames, increment):
+        if frames is None:
+            frames = 100
+        if increment is None:
+            increment = 0.0
         if self.ui.linearTab.isVisible():
             self.linear_channels.remoteSetChannel(channel, start_power, increment, frames)
         elif self.ui.expTab.isVisible():

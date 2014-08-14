@@ -8,14 +8,14 @@
 #
 
 # camera and stage.
-import madCityLabs.mclController as mclController
-import thorlabs.uc480Camera as uc480Cam
+import sc_hardware.madCityLabs.mclController as mclController
+import sc_hardware.thorlabs.uc480Camera as uc480Cam
 
 # focus lock control thread.
 import focuslock.stageOffsetControl as stageOffsetControl
 
 # ir laser control
-import thorlabs.LDC210 as LDC210
+import sc_hardware.thorlabs.LDC210 as LDC210
 
 # focus lock dialog.
 import focuslock.focusLockZ as focusLockZ
@@ -33,7 +33,7 @@ class AFocusLockZ(focusLockZ.FocusLockZCam):
                                                            stage,
                                                            lock_fn,
                                                            50.0,
-                                                           parameters.qpd_zcenter)
+                                                           parameters.get("qpd_zcenter"))
         ir_laser = LDC210.LDC210PWMLJ()
         focusLockZ.FocusLockZCam.__init__(self,
                                           parameters,

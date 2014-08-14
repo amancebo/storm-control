@@ -9,15 +9,13 @@
   <use_as_default type="int">1</use_as_default>
   <extrapolate_picture_count type="int">9</extrapolate_picture_count>
   <mag1 type="string">100x,100.0,0.0,0.0</mag1>
-  <mag2 type="string">10x,10.0,-49.1,266.0</mag2>
-  <mag3 type="string">4x,4.0,-25.0,660.0</mag3>
+  <mag2 type="string">10x,10.0,0.0,0.0</mag2>
+  <mag3 type="string">4x,4.0,0.0,0.0</mag3>
 
   <!-- capture -->
-  <directory type="string">c:\users\data\</directory>
+  <directory type="string">c:\data\</directory>
   <image_filename type="string">steve</image_filename>
-  <pixels_to_um type="float">0.158</pixels_to_um>
-  <!-- <magnification type="float">1.0</magnification> -->
-  <stage_speed type="float">1.0</stage_speed>
+  <pixels_to_um type="float">0.167</pixels_to_um>
 
   <!-- position rectangles & section circles -->
   <rectangle_size type="float">43.0</rectangle_size>

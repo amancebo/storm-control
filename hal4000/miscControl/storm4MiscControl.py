@@ -20,7 +20,7 @@ import sc_library.hdebug as hdebug
 import qtdesigner.storm4_misc_ui as miscControlsUi
 
 # Control
-import olympus.ix2ucb as ix2ucb
+import sc_hardware.olympus.ix2ucb as ix2ucb
 
 #
 # Misc Control Dialog Box
@@ -30,14 +30,14 @@ class AMiscControl(miscControl.MiscControl):
     def __init__(self, hardware, parameters, parent = None):
         miscControl.MiscControl.__init__(self, parameters, parent)
 
-        self.filter_wheel = ix2ucb.IX2UCB(port = "COM12")
+        self.filter_wheel = ix2ucb.IX2UCB(port = "COM3")
         if (not self.filter_wheel.getStatus()):
             self.filter_wheel = False
 
         # UI setup
         self.ui = miscControlsUi.Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowTitle(parameters.setup_name + " Misc Control")
+        self.setWindowTitle(parameters.get("setup_name") + " Misc Control")
 
         # connect signals
         if self.have_parent:
@@ -71,18 +71,18 @@ class AMiscControl(miscControl.MiscControl):
                 filter.setStyleSheet("QPushButton { color: red}")
                 if self.filter_wheel:
                     self.filter_wheel.setPosition(i+1)
-                self.parameters.filter_position = i
+                self.parameters.set("filter_position", i)
             else:
                 filter.setStyleSheet("QPushButton { color: black}")
 
     @hdebug.debug
     def newParameters(self, parameters):
         self.parameters = parameters
-        names = parameters.filter_names
+        names = parameters.get("filter_names")
         if (len(names) == 6):
             for i in range(6):
                 self.filters[i].setText(names[i])
-        self.filters[self.parameters.filter_position].click()
+        self.filters[self.parameters.get("filter_position")].click()
 
 
 #

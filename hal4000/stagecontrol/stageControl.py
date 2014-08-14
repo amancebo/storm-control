@@ -4,8 +4,10 @@
 #
 # The stage control UI.
 #
-# Hazen 02/14
+# Hazen 03/14
 #
+
+import math
 
 from PyQt4 import QtCore, QtGui
 
@@ -91,29 +93,28 @@ class Translator():
     # Update orientation adjustments based on settings.
     #
     def newParameters(self, parameters):
-        self.flip_axis = parameters.flip_axis
-        self.x_sign = parameters.x_sign
-        self.y_sign = parameters.y_sign
+        self.flip_axis = parameters.get("flip_axis")
+        self.x_sign = parameters.get("x_sign")
+        self.y_sign = parameters.get("y_sign")
 
-        if hasattr(parameters, "camera1"):
-            parameters = getattr(parameters, "camera1")
+        parameters = parameters.get("camera1", parameters)
 
         self.camera_x_sign = 1
-        if (parameters.flip_horizontal):
+        if (parameters.get("flip_horizontal")):
             self.camera_x_sign = -1
 
         self.camera_y_sign = 1
-        if (parameters.flip_vertical):
+        if (parameters.get("flip_vertical")):
             self.camera_y_sign = -1
 
         if self.flip_axis:
             [self.camera_x_sign, self.camera_y_sign] = [self.camera_y_sign, self.camera_x_sign]
 
         self.camera_flip_axis = 0
-        if (parameters.transpose):
+        if (parameters.get("transpose")):
             self.camera_flip_axis = 1
-            self.camera_x_sign = -1 * self.camera_x_sign
-            self.camera_y_sign = -1 * self.camera_y_sign
+            #self.camera_x_sign = -1 * self.camera_x_sign
+            #self.camera_y_sign = -1 * self.camera_y_sign
 
     ## translate
     #
@@ -150,6 +151,7 @@ class Translator():
 # will be a QStageThread object for buffering purposes.
 #
 class StageControl(QtGui.QDialog, halModule.HalModule):
+    tcpComplete = QtCore.pyqtSignal(object)
 
     ## __init__
     #
@@ -165,9 +167,12 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
         self.directory = ""
         self.drag_start_x = 0
         self.drag_start_y = 0
+        self.move_timer = QtCore.QTimer()
+        self.stage_speed = parameters.get("stage_speed")
         self.stage_x = 0
         self.stage_y = 0
         self.stage_z = 0
+        self.tcp_message = False
         self.translator = Translator()
 
         if parent:
@@ -178,7 +183,7 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
         # UI setup
         self.ui = stageUi.Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowTitle(parameters.setup_name + " Stage Control")
+        self.setWindowTitle(parameters.get("setup_name") + " Stage Control")
         self.setWindowIcon(qtAppIcon.QAppIcon())
 
         # UI motion buttons.
@@ -195,7 +200,11 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
         for button in self.motion_buttons:
             button.buttonClicked.connect(self.moveRelative)
 
-        # connect signals
+        # Configure timer.
+        self.move_timer.setSingleShot(True)
+        self.move_timer.timeout.connect(self.handleMoveTimer)
+
+        # Connect signals.
         if self.have_parent:
             self.ui.okButton.setText("Close")
             self.ui.okButton.clicked.connect(self.handleOk)
@@ -222,7 +231,7 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
             self.stage = False
         else:
             self.stage.updatePosition.connect(self.handleUpdatePosition)
-            self.stage.setVelocity(parameters.stage_speed, parameters.stage_speed)
+            self.stage.setVelocity(parameters.get("stage_speed"), parameters.get("stage_speed"))
 
     ## cleanup
     #
@@ -273,6 +282,14 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
             elif (signal[1] == "stepMove"):
                 signal[2].connect(self.moveRelative)
 
+    ## getSignals
+    #
+    # @return The signals this module provides.
+    #
+    @hdebug.debug
+    def getSignals(self):
+        return [[self.hal_type, "tcpComplete", self.tcpComplete]]
+
     ## handleAdd
     #
     # Add the current stage position to the saved positions combo box.
@@ -304,11 +321,32 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
     @hdebug.debug
     def handleCommMessage(self, message):
 
-        m_type = message.getType()
-        m_data = message.getData()
+        if (message.getType() == "Move Stage"):
+            x_pos = message.getData("stage_x")
+            y_pos = message.getData("stage_y")
+            if message.isTest():
+                if (x_pos == None) or (y_pos == None):
+                    message.setError(True, "Invalid positions")
 
-        if (m_type == "moveTo"):
-            self.moveAbsolute(m_data[0], m_data[1])
+                message.addResponse("duration", 1) # Minimum stage move time (1s)
+                self.tcpComplete.emit(message) 
+            else:
+                self.tcp_message = message
+                self.moveAbsolute(x_pos, y_pos)
+
+                # Based on stage speed, calculate how long the move will take.
+                dx = x_pos - self.stage_x
+                dy = y_pos - self.stage_y
+                dd = math.sqrt(dx*dx + dy*dy)
+                move_time = int(dd/self.stage_speed) + 1000
+
+                self.move_timer.setInterval(move_time)
+                self.move_timer.start()
+
+        elif (message.getType() == "Get Stage Position"):
+            message.addResponse("stage_x", self.stage_x)
+            message.addResponse("stage_y", self.stage_y)
+            self.tcpComplete.emit(message)
 
     ## handleDragMove
     #
@@ -378,6 +416,15 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
                 self.ui.saveComboBox.addItem("{0:.1f}, {1:.1f}".format(x, y),
                                              [x, y])
             self.ui.saveComboBox.setCurrentIndex(self.ui.saveComboBox.count()-1)
+
+    ## handleMoveTimer
+    #
+    # When the move timer times out we assume that the stage has
+    # reached the desired position.
+    #
+    @hdebug.debug
+    def handleMoveTimer(self):
+        self.tcpComplete.emit(self.tcp_message)
 
     ## handleOk
     #
@@ -486,10 +533,10 @@ class StageControl(QtGui.QDialog, halModule.HalModule):
     #
     @hdebug.debug    
     def newParameters(self, parameters):
-        self.directory = parameters.directory
+        self.directory = parameters.get("directory")
         self.translator.newParameters(parameters)
         for button in self.motion_buttons:
-            button.setStepSize(parameters.small_step_size, parameters.large_step_size)
+            button.setStepSize(parameters.get("small_step_size"), parameters.get("large_step_size"))
 
     ## startFilm
     #

@@ -10,13 +10,13 @@
 
 # qpd and stage.
 import stagecontrol.storm2StageControl as zstage
-import phreshPhotonics.phreshQPD as phreshQPD
+import sc_hardware.phreshPhotonics.phreshQPD as phreshQPD
 
 # focus lock control thread.
 import focuslock.stageOffsetControl as stageOffsetControl
 
 # ir laser control
-import thorlabs.LDC210 as LDC210
+import sc_hardware.thorlabs.LDC210 as LDC210
 
 # focus lock dialog.
 import focuslock.focusLockZ as focusLockZ
@@ -35,7 +35,7 @@ class AFocusLockZ(focusLockZ.FocusLockZQPD):
                                                            stage,
                                                            lock_fn,
                                                            50.0, 
-                                                           parameters.qpd_zcenter,
+                                                           parameters.get("qpd_zcenter"),
                                                            slow_stage = True)
         ir_laser = LDC210.LDC210("PCIe-6259", 8)
         focusLockZ.FocusLockZQPD.__init__(self,

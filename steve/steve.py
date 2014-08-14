@@ -88,12 +88,6 @@ class MagOffsetSpinBox(QtGui.QDoubleSpinBox):
 
         self.valueChanged.connect(self.handleValueChange)
 
-#    def enableDisable(self, objective):
-#        if (objective == self.objective):
-#            self.setReadOnly(True)
-#        else:
-#            self.setReadOnly(False)
-
     ## handleValueChange
     #
     # Emits the moValueChange signal.
@@ -128,7 +122,10 @@ class Window(QtGui.QMainWindow):
         self.debug = parameters.debug
         self.parameters = parameters
         self.picture_queue = []
+        self.stage_tracking_timer = QtCore.QTimer(self)
         self.taking_pictures = False
+
+        self.stage_tracking_timer.setInterval(500)
 
         # ui setup
         self.ui = steveUi.Ui_MainWindow()
@@ -182,6 +179,10 @@ class Window(QtGui.QMainWindow):
                 sbox.moValueChange.connect(self.handleMOValueChange)
                 self.spin_boxes.append(sbox)
 
+        # Create a validator for scaleLineEdit.
+        self.sce_validator = QtGui.QDoubleValidator(1.0e-6, 1.0e+6, 6, self.ui.scaleLineEdit)
+        self.ui.scaleLineEdit.setValidator(self.sce_validator)
+
         # Initialize view.
         self.view = mosaicView.MosaicView(parameters, self.ui.mosaicFrame)
         layout = QtGui.QGridLayout(self.ui.mosaicFrame)
@@ -221,14 +222,19 @@ class Window(QtGui.QMainWindow):
         self.ui.actionSet_Working_Directory.triggered.connect(self.handleSetWorkingDirectory)
         self.ui.foregroundOpacitySlider.valueChanged.connect(self.handleOpacityChange)
         self.ui.magComboBox.currentIndexChanged.connect(self.handleObjectiveChange)
+        self.ui.scaleLineEdit.textEdited.connect(self.handleScaleChange)
         self.ui.tabWidget.currentChanged.connect(self.handleTabChange)
+        self.ui.trackStageCheckBox.stateChanged.connect(self.handleTrackStage)
         self.ui.xSpinBox.valueChanged.connect(self.handleGridChange)
         self.ui.ySpinBox.valueChanged.connect(self.handleGridChange)
+
+        self.stage_tracking_timer.timeout.connect(self.handleStageTrackingTimer)
 
         self.view.addPosition.connect(self.addPositions)
         self.view.addSection.connect(self.addSection)
         self.view.gotoPosition.connect(self.gotoPosition)
         self.view.mouseMove.connect(self.updateMosaicLabel)
+        self.view.scaleChange.connect(self.updateScaleLineEdit)
         self.view.takePictures.connect(self.takePictures)
 
         self.sections.addPositions.connect(self.addPositions)
@@ -236,6 +242,8 @@ class Window(QtGui.QMainWindow):
 
         self.comm.captureComplete.connect(self.addImage)
         self.comm.disconnected.connect(self.handleDisconnected)
+        self.comm.getPositionComplete.connect(self.handleGetPositionComplete)
+        self.comm.gotoComplete.connect(self.handleGotoComplete)
 
         self.handleObjectiveChange(0)
 
@@ -248,7 +256,15 @@ class Window(QtGui.QMainWindow):
     #
     @hdebug.debug
     def addImage(self, image):
+
+        # If image is not an object then we are done.
+        if not image:
+            self.taking_pictures = False
+            self.comm.commDisconnect()
+            return
+
         self.view.addImage(image, self.current_objective, self.current_magnification, self.current_offset)
+        self.view.setCrosshairPosition(image.x_pix, image.y_pix)
         if (len(self.picture_queue) > 0):
             next_item = self.picture_queue[0]
             if (type(next_item) == type(coord.Point(0,0,"um"))):
@@ -310,6 +326,7 @@ class Window(QtGui.QMainWindow):
     @hdebug.debug
     def gotoPosition(self, point):
         if not self.taking_pictures:
+            self.comm.commConnect()
             self.comm.gotoPosition(point.x_um - self.current_offset.x_um, point.y_um - self.current_offset.y_um)
 
     ## handleAbort
@@ -345,6 +362,23 @@ class Window(QtGui.QMainWindow):
     @hdebug.debug
     def handleDisconnected(self):
         self.taking_pictures = False
+
+    ## handleGetPositionComplete
+    #
+    # @param a_point A coord.Point object specifying the current stage location.
+    #
+    @hdebug.debug
+    def handleGetPositionComplete(self, a_point):
+        offset_point = coord.Point(a_point.x_um + self.current_offset.x_um,
+                                   a_point.y_um + self.current_offset.y_um,
+                                   "um")
+        self.view.setCrosshairPosition(offset_point.x_pix, offset_point.y_pix)
+
+    ## handleGotoComplete
+    #
+    @hdebug.debug
+    def handleGotoComplete(self):
+        self.comm.commDisconnect()
 
     ## handleGridChange
     #
@@ -539,6 +573,22 @@ class Window(QtGui.QMainWindow):
             self.positions.saveToMosaicFile(mosaic_fileptr, mosaic_filename)
             self.sections.saveToMosaicFile(mosaic_fileptr, mosaic_filename)
 
+    ## handleScaleChange.
+    #
+    # Handles user editting the display scale.
+    #
+    # @param new_text The new (text) representation of the desired scale.
+    #
+    @hdebug.debug
+    def handleScaleChange(self, new_text):
+        try:
+            new_scale = float(new_text)
+            if (new_scale <= 0.0):
+                new_scale = 1.0e-6
+            self.view.setScale(new_scale)
+        except:
+            pass
+
     ## handleSetWorkingDirectory
     #
     # Handles changing the current working directory.
@@ -553,7 +603,6 @@ class Window(QtGui.QMainWindow):
                                                                QtGui.QFileDialog.ShowDirsOnly))
         if directory:
             self.parameters.directory = directory + "/"
-            self.comm.setDirectory(self.parameters.directory)
             print self.parameters.directory
 
     ## handleSnapshot
@@ -571,6 +620,16 @@ class Window(QtGui.QMainWindow):
         if snapshot_filename:
             pixmap = QtGui.QPixmap.grabWidget(self.view.viewport())
             pixmap.save(snapshot_filename)
+
+    ## handleStageTrackingTimer
+    #
+    # Get the current stage position from HAL and update the mosaic.
+    #
+    @hdebug.debug
+    def handleStageTrackingTimer(self):
+        if not self.taking_pictures:
+            self.comm.commConnect()
+            self.comm.getPosition()
 
     ## handleTabChange
     #
@@ -591,14 +650,22 @@ class Window(QtGui.QMainWindow):
             self.ui.mosaicLabel.hide()
             self.sections.setSceneItemsVisible(False)
 
-    ## updateMosaicLabel
+    ## handleTrackStage
     #
-    # Updates the UI element that displays the current mouse position in microns.
+    # Turn on/off (HAL) stage tracking when checked.
     #
-    # @param a_point A coord.Point object with current mouse position in microns.
+    # @param state Current state of the check box.
     #
-    def updateMosaicLabel(self, a_point):
-        self.ui.mosaicLabel.setText("{0:.2f}, {1:.2f}".format(a_point.x_um, a_point.y_um))
+    @hdebug.debug
+    def handleTrackStage(self, state):
+        if (state == QtCore.Qt.Checked):
+            self.view.showCrosshair(True)
+            self.stage_tracking_timer.start()
+            self.comm.commConnect()
+        else:
+            self.view.showCrosshair(False)
+            self.stage_tracking_timer.stop()
+            self.comm.commDisconnect()
 
     ## setCenter
     #
@@ -629,9 +696,31 @@ class Window(QtGui.QMainWindow):
             self.setCenter(point)
             self.picture_queue = picture_list[1:]
             self.taking_pictures = True
-            if not self.comm.captureStart(self.current_center.x_um, self.current_center.y_um):
+            self.comm.commConnect()
+            if self.comm.setDirectory(self.parameters.directory):
+                self.comm.captureStart(self.current_center.x_um, self.current_center.y_um)
+            else:
                 self.taking_pictures = False
                 self.picture_queue = []
+
+    ## updateMosaicLabel
+    #
+    # Updates the UI element that displays the current mouse position in microns.
+    #
+    # @param a_point A coord.Point object with current mouse position in microns.
+    #
+    def updateMosaicLabel(self, a_point):
+        offset_point = coord.Point(a_point.x_um - self.current_offset.x_um,
+                                   a_point.y_um - self.current_offset.y_um,
+                                   "um")
+        self.ui.mosaicLabel.setText("{0:.2f}, {1:.2f}".format(offset_point.x_um, offset_point.y_um))
+
+    ## updateScaleLineEdit
+    #
+    # @param new_value The new value of the scale.
+    #
+    def updateScaleLineEdit(self, new_value):
+        self.ui.scaleLineEdit.setText("{0:.6f}".format(new_value))
 
     ## quit
     #
@@ -645,7 +734,12 @@ class Window(QtGui.QMainWindow):
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    parameters = params.Parameters("settings_default.xml")
+
+    # Load settings.
+    if (len(sys.argv)==2):
+        parameters = params.Parameters(sys.argv[1])
+    else:
+        parameters = params.Parameters("settings_default.xml")
 
     # Start logger.
     hdebug.startLogging(parameters.directory + "logs/", "steve")

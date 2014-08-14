@@ -6,7 +6,7 @@
 # the resulting settings. Primarily designed for use
 # by the hal acquisition program.
 #
-# Hazen 02/14
+# Hazen 05/14
 #
 
 import copy
@@ -112,11 +112,11 @@ def Parameters(parameters_file, is_HAL = False):
 
     # Read camera1/camera2 settings (only used with dual camera setups).
     camera1 = xml.find("camera1")
-    if camera1:
+    if camera1 is not None:
         xml_object.camera1 = StormXMLObject(camera1)
 
     camera2 = xml.find("camera2")
-    if camera2:
+    if camera2 is not None:
         xml_object.camera2 = StormXMLObject(camera2)
 
     xml_object.parameters_file = parameters_file
@@ -163,7 +163,13 @@ def Parameters(parameters_file, is_HAL = False):
         if not os.path.exists(xml_object.shutters):
             xml_object.shutters = os.path.dirname(parameters_file) + "/" + xml_object.shutters
 
+        xml_object.shutter_colors = []
+        xml_object.shutter_data = []
+        xml_object.shutter_frames = 0
+        xml_object.shutter_oversampling = 0
+
         xml_object.parameters_file = parameters_file
+        xml_object.initialized = False
 
     return xml_object
 
@@ -216,7 +222,8 @@ def setSetupName(parameters, setup_name):
 ## StormXMLObject
 #
 # A parameters object whose attributes are created dynamically
-# by parsing an XML file.
+# by parsing an XML file. The use of the get() and set() methods
+# is encouraged instead of direct property access via the dot.
 #
 class StormXMLObject(object):
 
@@ -292,48 +299,45 @@ class StormXMLObject(object):
                 else: 
                     setattr(self, slot, str(node_value))
 
-    ## __getattribute__
+    ## get
     #
-    # This method is over-written for the purpose of logging which
-    # attributes of an instance are actually used.
+    # Get a property of the parameters object.
     #
-    # @param name The name of the attribute to return the value of.
+    # @param property A string containing the property name.
+    # @param default (Optional) The value to use if the property is not found.
     #
-    # @return The value of the requested attribute.
+    # @return The propery if found, otherwise default.
     #
-#    def __getattribute__(self, name):
-#        if hasattr(self, "attributes") and (name != "attributes"):
-#            if (name in self.attributes):
-#                self.attributes[name] += 1
-#        return object.__getattribute__(self, name)
+    def get(self, property, default = None):
+        if hasattr(self, property):
+            return getattr(self, property)
+        else:
+            if default is not None:
+                return default
+            else:
+                raise Exception("Requested property " + property + " not found and no default was specified.")
 
-    ## __setattr__
+    ## set
     #
-    # This method is over-written for the purpose of logging which
-    # attributes were added to the class after instantiation.
+    # Set a property (or properties) of the parameters object.
     #
-    # @param name The name of attribute to set the value of.
-    # @param value The value to set the attribute to.
+    # @param property A string containing the property name.
+    # @param value The value to set the property too.
     #
-#    def __setattr__(self, name, value):
-#        object.__setattr__(self, name, value)
-#        if (name != "attributes"):
-#            self.attributes[name] = 0
+    def set(self, property, value):
+        if (type(property) == type([])):
+            if (len(property) != len(value)):
+                raise Exception("Lengths do not match in parameters multi-set.")
+            else:
+                for i in range(len(property)):
+                    setattr(self, property[i], value[i])
+        else:
+            setattr(self, property, value)
 
     ## unused
     #
     # @return A list of the attributes in the instance that were never used.
     # 
-#    def unused(self):
-#        if not self.warned:
-#            self.warned = True
-#            not_used = []
-#            for key, value in self.attributes.iteritems():
-#                if (value == 0):
-#                    not_used.append(key)
-#            return not_used
-#        else:
-#            return []
     def unused(self):
         return []
 

@@ -10,7 +10,10 @@
 from PyQt4 import QtCore
 
 # stage.
-import prior.prior as prior
+import sc_hardware.prior.prior as prior
+
+# stage control thread.
+import stagecontrol.stageThread as stageThread
 
 # stage control thread.
 import stagecontrol.stageThread as stageThread
@@ -26,7 +29,7 @@ import stagecontrol.stageControl as stageControl
 #
 
 #prior_stage = prior.Prior(port = "COM1")
-prior_stage = prior.Prior(port = "COM10", baudrate = 9600)
+prior_stage = prior.Prior(port = "COM5", baudrate = 9600)
 prior_mutex = QtCore.QMutex()
 
 #

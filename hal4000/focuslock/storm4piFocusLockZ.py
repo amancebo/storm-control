@@ -10,14 +10,14 @@
 from PyQt4 import QtCore
 
 # camera and stage.
-import madCityLabs.mclController as mclController
-import thorlabs.uc480Camera as uc480Cam
+import sc_hardware.madCityLabs.mclController as mclController
+import sc_hardware.thorlabs.uc480Camera as uc480Cam
 
 # focus lock control thread.
 import focuslock.stageOffsetControl as stageOffsetControl
 
 # ir laser control
-import thorlabs.LDC210 as LDC210
+import sc_hardware.thorlabs.LDC210 as LDC210
 
 # focus lock dialog.
 import focuslock.focusLockZ as focusLockZ
@@ -27,7 +27,7 @@ import focuslock.focusLockZ as focusLockZ
 # scope with two USB cameras and two MCL objective Z positioners.
 #
 class AFocusLockZ(focusLockZ.FocusLockZDualCam):
-    def __init__(self, hardware, parameters, tcp_control, parent = None):
+    def __init__(self, hardware, parameters, parent = None):
         lock_fn = lambda(x): 0.05*x
 
         # The numpy fitting routine is apparently not thread safe.
@@ -42,7 +42,7 @@ class AFocusLockZ(focusLockZ.FocusLockZDualCam):
                                                             stage1,
                                                             lock_fn,
                                                             50.0,
-                                                            parameters.qpd_zcenter)
+                                                            parameters.get("qpd_zcenter"))
 
         # Upper objective camera and piezo.
         cam2 = uc480Cam.CameraQPD300(camera_id = 3,
@@ -53,13 +53,12 @@ class AFocusLockZ(focusLockZ.FocusLockZDualCam):
                                                             stage2,
                                                             lock_fn,
                                                             50.0,
-                                                            parameters.qpd_zcenter)
+                                                            parameters.get("qpd_zcenter"))
 
         ir_laser = LDC210.LDC210PWMLJ()
 
         focusLockZ.FocusLockZDualCam.__init__(self,
                                               parameters,
-                                              tcp_control,
                                               [control_thread1, control_thread2],
                                               [ir_laser, False],
                                               parent)
