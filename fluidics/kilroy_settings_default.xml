@@ -3,10 +3,10 @@
   <!-- Default kilroy settings -->
 
   <!-- COM port of serial connection to valves -->
-  <valves_com_port type="int">2</valves_com_port>	  
+  <valves_com_port type="int">14</valves_com_port>	  
 
   <!-- COM port of serial connection to pump -->
-  <pump_com_port type="int">3</pump_com_port>
+  <pump_com_port type="int">13</pump_com_port>
 
   <!-- ID of Pump -->
   <pump_ID type="int">30</pump_ID>
@@ -15,10 +15,10 @@
   <tcp_port type="int">9500</tcp_port>
 
   <!-- Number of valves to simulate (Defaults to 0) -->
-  <num_simulated_valves type="int">2</num_simulated_valves>
+  <num_simulated_valves type="int">0</num_simulated_valves>
 
   <!-- Simulate pump? (Defaults to False) -->
-  <simulate_pump type="boolean">True</simulate_pump>
+  <simulate_pump type="boolean">False</simulate_pump>
 
   <!-- Sets verbosity of kilroy and the classes it owns. Useful for debug -->
   <verbose type="boolean">True</verbose>
