@@ -3,10 +3,10 @@
   <!-- Default kilroy settings -->
 
   <!-- COM port of serial connection to valves -->
-  <valves_com_port type="int">14</valves_com_port>	  
+  <valves_com_port type="int">17</valves_com_port>	  
 
   <!-- COM port of serial connection to pump -->
-  <pump_com_port type="int">13</pump_com_port>
+  <pump_com_port type="int">16</pump_com_port>
 
   <!-- ID of Pump -->
   <pump_ID type="int">30</pump_ID>
