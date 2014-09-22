@@ -51,7 +51,8 @@ class CameraParams(QtGui.QGroupBox):
         self.ui.setupUi(self)
 
         # connect signals
-        self.connect(self.ui.EMCCDSlider, QtCore.SIGNAL("valueChanged(int)"), self.cameraGainChange)
+        self.ui.EMCCDSlider.valueChanged.connect(self.cameraGainChange)
+        #self.connect(self.ui.EMCCDSlider, QtCore.SIGNAL("valueChanged(int)"), self.cameraGainChange)
 
     ## cameraGainChange
     #
@@ -78,10 +79,15 @@ class CameraParams(QtGui.QGroupBox):
             self.temperature = p.temperature
 
         if (hasattr(p, "emgainmode")):
-            if p.emgainmode == 0:
-                self.ui.EMCCDSlider.setMaximum(255)
-            else:
-                self.ui.EMCCDSlider.setMaximum(100)
+            self.ui.EMCCDSlider.valueChanged.disconnect()
+            self.ui.EMCCDSlider.setMinimum(p.get("em_gain_low", 1))
+            self.ui.EMCCDSlider.setMaximum(p.get("em_gain_high", 10))
+            #print p.em_gain_low, p.em_gain_high
+            #if p.emgainmode == 0:
+            #    self.ui.EMCCDSlider.setMaximum(255)
+            #else:
+            #    self.ui.EMCCDSlider.setMaximum(100)
+            self.ui.EMCCDSlider.valueChanged.connect(self.cameraGainChange)
             self.ui.EMCCDSlider.setValue(p.emccd_gain)
 
         if (hasattr(p, "preampgain")):
