@@ -45,9 +45,9 @@
 
   <channels>
 
-    <!-- 657 laser -->
+    <!-- 640 laser -->
     <channel>
-      <description>657</description>
+      <description>640</description>
       <color type="rgb">255,0,0</color>
       
       <amplitude_modulation>
@@ -57,7 +57,7 @@
 	  <maximum type="int">7600</maximum>
 	  <channel type="int">0</channel>
 	  <off_frequency type="float">20.0</off_frequency>
-	  <on_frequency type="float">88.60</on_frequency>
+	  <on_frequency type="float">91.47</on_frequency>
 	</parameters>
       </amplitude_modulation>
       
