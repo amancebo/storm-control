@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'storm2-misc.ui'
 #
-# Created: Wed Aug 13 16:44:37 2014
+# Created: Mon Dec 01 14:43:49 2014
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,33 +26,20 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(391, 175)
+        Dialog.resize(391, 100)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
-        Dialog.setMinimumSize(QtCore.QSize(391, 175))
-        Dialog.setMaximumSize(QtCore.QSize(391, 175))
+        Dialog.setMinimumSize(QtCore.QSize(391, 100))
+        Dialog.setMaximumSize(QtCore.QSize(391, 100))
         self.okButton = QtGui.QPushButton(Dialog)
-        self.okButton.setGeometry(QtCore.QRect(300, 140, 75, 24))
+        self.okButton.setGeometry(QtCore.QRect(300, 70, 75, 24))
         self.okButton.setCheckable(False)
         self.okButton.setObjectName(_fromUtf8("okButton"))
-        self.laserLampGroupBox = QtGui.QGroupBox(Dialog)
-        self.laserLampGroupBox.setGeometry(QtCore.QRect(10, 10, 371, 61))
-        self.laserLampGroupBox.setObjectName(_fromUtf8("laserLampGroupBox"))
-        self.laserButton = QtGui.QPushButton(self.laserLampGroupBox)
-        self.laserButton.setGeometry(QtCore.QRect(30, 20, 131, 24))
-        self.laserButton.setCheckable(True)
-        self.laserButton.setAutoExclusive(True)
-        self.laserButton.setObjectName(_fromUtf8("laserButton"))
-        self.lampButton = QtGui.QPushButton(self.laserLampGroupBox)
-        self.lampButton.setGeometry(QtCore.QRect(210, 20, 131, 24))
-        self.lampButton.setCheckable(True)
-        self.lampButton.setAutoExclusive(True)
-        self.lampButton.setObjectName(_fromUtf8("lampButton"))
         self.filterWheelGroupBox = QtGui.QGroupBox(Dialog)
-        self.filterWheelGroupBox.setGeometry(QtCore.QRect(10, 80, 371, 51))
+        self.filterWheelGroupBox.setGeometry(QtCore.QRect(10, 10, 371, 51))
         self.filterWheelGroupBox.setObjectName(_fromUtf8("filterWheelGroupBox"))
         self.filter1Button = QtGui.QPushButton(self.filterWheelGroupBox)
         self.filter1Button.setGeometry(QtCore.QRect(10, 20, 51, 24))
@@ -91,9 +78,6 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "HAL-4000 Miscellaneous Controls", None))
         self.okButton.setText(_translate("Dialog", "Ok", None))
-        self.laserLampGroupBox.setTitle(_translate("Dialog", "Laser Lamp Control", None))
-        self.laserButton.setText(_translate("Dialog", "Laser", None))
-        self.lampButton.setText(_translate("Dialog", "Lamp", None))
         self.filterWheelGroupBox.setTitle(_translate("Dialog", "Filter Wheel Control", None))
         self.filter1Button.setText(_translate("Dialog", "1", None))
         self.filter2Button.setText(_translate("Dialog", "2", None))
