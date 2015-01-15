@@ -1,0 +1,67 @@
+2014-04-25T14:48:26.760010 p:3092 t:5044 [LOG] -------->>
+2014-04-25T14:49:32.613776 p:3492 t:3248 [LOG] -------->>
+2014-04-25T14:49:32.614777 p:3492 t:3248 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:49:32.614777 p:3492 t:3248 [LOG] Debug logging disabled
+2014-04-25T14:49:32.616777 p:3492 t:3248 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:49:32.640778 p:3492 t:3248 [LOG] Device COM11 initialized.
+2014-04-25T14:49:32.640778 p:3492 t:3248 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:50:05.124636 p:904 t:3548 [LOG] -------->>
+2014-04-25T14:50:05.125636 p:904 t:3548 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:50:05.125636 p:904 t:3548 [LOG] Debug logging disabled
+2014-04-25T14:50:05.126636 p:904 t:3548 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:50:05.163638 p:904 t:3548 [LOG] Device COM11 initialized.
+2014-04-25T14:50:05.163638 p:904 t:3548 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:50:07.615778 p:3672 t:3576 [LOG] -------->>
+2014-04-25T14:50:07.615778 p:3672 t:3576 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:50:07.615778 p:3672 t:3576 [LOG] Debug logging disabled
+2014-04-25T14:50:07.617779 p:3672 t:3576 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:50:07.638780 p:3672 t:3576 [LOG] Device COM11 initialized.
+2014-04-25T14:50:07.638780 p:3672 t:3576 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:50:50.775247 p:1852 t:3360 [LOG] -------->>
+2014-04-25T14:50:50.776247 p:1852 t:3360 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:50:50.776247 p:1852 t:3360 [LOG] Debug logging disabled
+2014-04-25T14:50:50.777247 p:1852 t:3360 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:50:50.815249 p:1852 t:3360 [LOG] Device COM11 initialized.
+2014-04-25T14:50:50.816249 p:1852 t:3360 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:51:41.022121 p:1396 t:412 [LOG] -------->>
+2014-04-25T14:51:41.022121 p:1396 t:412 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:51:41.022121 p:1396 t:412 [LOG] Debug logging disabled
+2014-04-25T14:51:41.024121 p:1396 t:412 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:51:41.061123 p:1396 t:412 [LOG] Device COM11 initialized.
+2014-04-25T14:51:41.063123 p:1396 t:412 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:52:13.031952 p:3516 t:520 [LOG] -------->>
+2014-04-25T14:52:13.031952 p:3516 t:520 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:52:13.031952 p:3516 t:520 [LOG] Debug logging disabled
+2014-04-25T14:52:13.033952 p:3516 t:520 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:52:13.070954 p:3516 t:520 [LOG] Device COM11 initialized.
+2014-04-25T14:52:15.072069 p:3516 t:520 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:52:55.731394 p:4820 t:1264 [LOG] -------->>
+2014-04-25T14:52:55.731394 p:4820 t:1264 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:52:55.731394 p:4820 t:1264 [LOG] Debug logging disabled
+2014-04-25T14:52:55.733394 p:4820 t:1264 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:52:55.755396 p:4820 t:1264 [LOG] Device COM11 initialized.
+2014-04-25T14:52:57.757510 p:4820 t:1264 [LOG] Error occurred. Device COM11. Error in device COM11: Error code 109 (6d hex). (Error code: 109)
+2014-04-25T14:53:20.792828 p:1960 t:3184 [LOG] -------->>
+2014-04-25T14:53:20.792828 p:1960 t:3184 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:53:20.792828 p:1960 t:3184 [LOG] Debug logging disabled
+2014-04-25T14:53:20.794828 p:1960 t:3184 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:53:20.815829 p:1960 t:3184 [LOG] Device COM11 initialized.
+2014-04-25T14:53:20.816829 p:1960 t:3184 [LOG] Device MotorZStage loaded from Thorlabs and labeled as MotorZStage
+2014-04-25T14:55:10.818121 p:1960 t:3184 [LOG] Error occurred. Device MotorZStage. Error in device MotorZStage: Device timed-out: no response received withing expected time interval.. 
+, file MMCore.cpp, line 979
+2014-04-25T14:55:44.890069 p:4504 t:4600 [LOG] -------->>
+2014-04-25T14:55:44.891070 p:4504 t:4600 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:55:44.891070 p:4504 t:4600 [LOG] Debug logging disabled
+2014-04-25T14:55:44.893070 p:4504 t:4600 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:55:44.915071 p:4504 t:4600 [LOG] Device COM11 initialized.
+2014-04-25T14:55:44.915071 p:4504 t:4600 [LOG] Device MotorZStage loaded from Thorlabs and labeled as MotorZStage
+2014-04-25T14:57:34.917363 p:4504 t:4600 [LOG] Error occurred. Device MotorZStage. Error in device MotorZStage: Device timed-out: no response received withing expected time interval.. 
+, file MMCore.cpp, line 979
+2014-04-25T14:58:31.451596 p:4780 t:4640 [LOG] -------->>
+2014-04-25T14:58:31.452596 p:4780 t:4640 [LOG] Core session started by hazen on STORM4-PC
+2014-04-25T14:58:31.452596 p:4780 t:4640 [LOG] Debug logging disabled
+2014-04-25T14:58:31.453596 p:4780 t:4640 [LOG] Device COM11 loaded from SerialManager and labeled as COM11
+2014-04-25T14:58:31.476598 p:4780 t:4640 [LOG] Device COM11 initialized.
+2014-04-25T14:58:31.477598 p:4780 t:4640 [LOG] Device MotorZStage loaded from Thorlabs and labeled as MotorZStage
+2014-04-25T15:00:21.479889 p:4780 t:4640 [LOG] Error occurred. Device MotorZStage. Error in device MotorZStage: Device timed-out: no response received withing expected time interval.. 
+, file MMCore.cpp, line 979
