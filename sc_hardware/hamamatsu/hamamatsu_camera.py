@@ -728,6 +728,8 @@ class HamamatsuCameraMR(HamamatsuCamera):
         self.hcam_ptr = False
         self.old_frame_bytes = -1
 
+        self.setPropertyValue("output_trigger_kind[0]", 2)
+
     ## getFrames
     #
     # Gets all of the available frames.
@@ -818,10 +820,10 @@ if __name__ == "__main__":
     if (n_cameras > 0):
         print "camera 0 model:", getModelInfo(0)
 
-        hcam = HamamatsuCamera(0)
+        hcam = HamamatsuCameraMR(0)
 
         # List support properties.
-        if 1:
+        if 0:
             print "Supported properties:"
             props = hcam.getProperties()
             for i, id_name in enumerate(sorted(props.keys())):
@@ -840,23 +842,36 @@ if __name__ == "__main__":
                         print "         ", key, "/", text_values[key]
 
         # Test setting & getting some parameters.
-        if 0:
-            print hcam.setPropertyValue("exposure_time", 0.01)
-            print hcam.setPropertyValue("subarray_hsize", 512)
-            print hcam.setPropertyValue("subarray_vsize", 512)
+        if 1:
+            print hcam.setPropertyValue("exposure_time", 0.001)
+
+            #print hcam.setPropertyValue("subarray_hsize", 2048)
+            #print hcam.setPropertyValue("subarray_vsize", 2048)
+            print hcam.setPropertyValue("subarray_hpos", 512)
+            print hcam.setPropertyValue("subarray_vpos", 512)
+            print hcam.setPropertyValue("subarray_hsize", 1024)
+            print hcam.setPropertyValue("subarray_vsize", 1024)
+
             print hcam.setPropertyValue("binning", "1x1")
-            print hcam.setPropertyValue("readout_speed", 1)
+            print hcam.setPropertyValue("readout_speed", 2)
+    
+            hcam.setSubArrayMode()
+            #hcam.startAcquisition()
+            #hcam.stopAcquisition()
 
             params = ["internal_frame_rate",
-                      "image_height",
-                      "image_width",
-                      "image_framebytes",
-#                      "buffer_framebytes",
-#                      "buffer_rowbytes",
-#                      "buffer_top_offset_bytes",
-                      "subarray_hsize",
-                      "subarray_vsize",
-                      "binning"]
+                      "timing_readout_time",
+                      "exposure_time"]
+
+            #                      "image_height",
+            #                      "image_width",
+            #                      "image_framebytes",
+            #                      "buffer_framebytes",
+            #                      "buffer_rowbytes",
+            #                      "buffer_top_offset_bytes",
+            #                      "subarray_hsize",
+            #                      "subarray_vsize",
+            #                      "binning"]
             for param in params:
                 print param, hcam.getPropertyValue(param)[0]
 
