@@ -24,6 +24,7 @@ import numpy
 # Hamamatsu constants.
 DCAMCAP_EVENT_FRAMEREADY = int("0x0002", 0)
 
+DCAMERR_UNSURE = 0   # This is also no error?
 DCAMERR_NOERROR = 1  # I made this one up. It seems to be the "good" result.
 
 DCAMPROP_ATTR_HASVALUETEXT = int("0x10000000", 0)
@@ -96,25 +97,12 @@ class DCAM_PARAM_PROPERTYVALUETEXT(ctypes.Structure):
 # @return The return value of the function.
 #
 def checkStatus(fn_return, fn_name= "unknown"):
-    #if (fn_return != DCAMERR_NOERROR):
-    #    print " dcam:", fn_name, "returned", fn_return
-    assert (fn_return == DCAMERR_NOERROR), " dcam: " + fn_name + " returned " + str(fn_return)
+    if (fn_return != DCAMERR_NOERROR) and (fn_return != DCAMERR_UNSURE):
+        raise DCAMException("dcam error: " + fn_name + " returned " + str(fn_return))
+    if (fn_return == DCAMERR_UNSURE):
+        print "Possible dcam error?", str(fn_return)
     return fn_return
 
-
-#
-# Initialization
-#
-dcam = ctypes.windll.dcamapi
-temp = ctypes.c_int32(0)
-checkStatus(dcam.dcam_init(None, ctypes.byref(temp), None), 
-            "dcam_init")
-n_cameras = temp.value
-
-
-#
-# Functions.
-#
 
 ## convertPropertyName
 #
@@ -127,6 +115,16 @@ n_cameras = temp.value
 #
 def convertPropertyName(p_name):
     return p_name.lower().replace(" ", "_")
+
+
+## DCAMException
+#
+# Camera exceptions.
+#
+class DCAMException(Exception):
+    def __init__(self, message):
+        Exception.__init__(self, message)
+
 
 ## getModelInfo
 #
@@ -145,6 +143,18 @@ def getModelInfo(camera_id):
                                        ctypes.c_int(c_buf_len)),
                 "dcam_getmodelinfo")
     return c_buf.value
+
+
+
+#
+# Initialization
+#
+dcam = ctypes.windll.dcamapi
+temp = ctypes.c_int32(0)
+checkStatus(dcam.dcam_init(None, ctypes.byref(temp), None), 
+            "dcam_init")
+n_cameras = temp.value
+
 
 
 ## HCamData
