@@ -77,9 +77,9 @@ class LockDisplay(QtGui.QWidget):
                            lockModes.CalibrationLockMode(control_thread,
                                                          parameters,
                                                          self),
-                           lockModes.ZScanLockMode(control_thread,
-                                                   parameters,
-                                                   self),
+                           lockModes.ZScanLockModeV2(control_thread,
+                                                     parameters,
+                                                     self),
                            lockModes.LargeOffsetLock(control_thread,
                                                      parameters,
                                                      self)]
