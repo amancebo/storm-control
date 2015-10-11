@@ -1008,7 +1008,7 @@ if __name__ == "__main__":
         for key in keys:
             print key, '\t', dictionary[key]
 
-    andor_path = "c:/Program Files/Andor SOLIS/Drivers/"
+    andor_path = "C:/Program Files/Andor Driver Pack 2" # "c:/Program Files/Andor SOLIS/Drivers/"
     loadAndorDLL(andor_path + "atmcd64d.dll")
     print getAvailableCameras(), "cameras connected"
     handles = getCameraHandles()

@@ -23,7 +23,7 @@ class FW102C(RS232.RS232):
     # @param port The com port the filter wheel is connected to.
     # @param baud_rate The baud rate to use for communication.
     #
-    def __init__(self, port = "COM1", baud_rate = 115200): # changed to "COM14" (was "COM5" before), Josh 6/26/13"
+    def __init__(self, port = "COM4", baud_rate = 115200): # changed to "COM14" (was "COM5" before), Josh 6/26/13"
         self.on = False
         try:
             # open port
