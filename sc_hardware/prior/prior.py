@@ -264,7 +264,7 @@ class PriorNI(object):
 
     def __init__(self):
         self.scale = 1.0/25.0
-        #self.ao_task = nicontrol.AnalogOutput("PCI-6713", 0)
+        #self.ao_task = nicontrol.AnalogOutput("PCI-6221", 0)
 
     def shutDown(self):
         #self.ao_task.stopTask()
@@ -273,8 +273,8 @@ class PriorNI(object):
         
     def zMoveTo(self, z):
         #self.ao_task.output(self.scale * z)
-        #nicontrol.setAnalogLine("PCI-6713", 0, self.scale * z)
-        nicontrol.setAnalogLine("PCIe-6259", 0, self.scale * z)
+        #nicontrol.setAnalogLine("PCI-6221", 0, self.scale * z)
+        nicontrol.setAnalogLine("PCI-6221", 0, self.scale * z)
 
 ## PriorZ
 #

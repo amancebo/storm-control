@@ -72,7 +72,7 @@ class PhreshQPDSTORM3(PhreshQPD):
     #
     def __init__(self, samples = 5000, sample_rate_Hz = 100000):
         PhreshQPD.__init__(self, samples = samples, sample_rate_Hz = sample_rate_Hz)
-        self.qpd_task = nicontrol.AnalogWaveformInput("PCI-MIO-16E-4", 0)
+        self.qpd_task = nicontrol.AnalogWaveformInput("PCI-6221", 0)
         self.qpd_task.addChannel(1)
         self.qpd_task.addChannel(2)
         self.qpd_task.configureAcquisition(samples, sample_rate_Hz)
@@ -111,7 +111,7 @@ class PhreshQPDPRISM2(PhreshQPD):
     #
     def __init__(self, samples = 5000, sample_rate_Hz = 100000):
         PhreshQPD.__init__(self, samples = samples, sample_rate_Hz = sample_rate_Hz)
-        self.qpd_task = nicontrol.AnalogWaveformInput("PCIe-6321", 0)
+        self.qpd_task = nicontrol.AnalogWaveformInput("PCI-6221", 0)
         self.qpd_task.addChannel(1)
         self.qpd_task.configureAcquisition(samples, sample_rate_Hz)
 
@@ -160,7 +160,7 @@ class PhreshQPDSTORM2(PhreshQPD):
     # need to restart things on occasion.
     #
     def createTask(self):
-        self.qpd_task = nicontrol.AnalogWaveformInput("PCIe-6259", 0)
+        self.qpd_task = nicontrol.AnalogWaveformInput("PCI-6221", 0)
         self.qpd_task.addChannel(1)
         self.qpd_task.addChannel(2)
         self.qpd_task.configureAcquisition(self.samples, self.sample_rate_Hz)

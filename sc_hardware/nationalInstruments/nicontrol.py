@@ -691,7 +691,7 @@ def setDigitalLine(board, line, value):
 
 if __name__ == "__main__":
     print getDAQBoardInfo()
-    print getBoardDevNumber("PCI-6733")
+    print getBoardDevNumber("PCI-6221")
     
     if 0:
         waveform1 = [1, 0, 1, 0, 1, 0]
@@ -699,13 +699,13 @@ if __name__ == "__main__":
         waveform3 = [0, 0, 0, 0, 0, 0]
         waveform = waveform1 + waveform2 + waveform3
         frequency = 1.0
-        wv_task = DigitalWaveformOutput("PCI-6733", 0)
-        wv_task.addChannel("PCI-6733", 1)
-        wv_task.addChannel("PCI-6733", 2)
+        wv_task = DigitalWaveformOutput("PCI-6221", 0)
+        wv_task.addChannel("PCI-6221", 1)
+        wv_task.addChannel("PCI-6221", 2)
         wv_task.setWaveform(waveform, 10.0 * frequency)
         wv_task.startTask()
         
-        ct_task = CounterOutput("PCI-6733", 0, frequency, 0.5)
+        ct_task = CounterOutput("PCI-6221", 0, frequency, 0.5)
         ct_task.setCounter(2*len(waveform))
 #        ct_task.setTrigger(0)
         ct_task.startTask()
@@ -719,11 +719,11 @@ if __name__ == "__main__":
     if 0:
         waveform = [5.0, 4.0, 3.0, 2.0, 1.0, 0.5]
         frequency = 31.3 * len(waveform) * 0.5
-        wv_task = WaveformOutput("PCI-MIO-16E-4", 0)
+        wv_task = WaveformOutput("PCI-6221", 0)
         wv_task.setWaveform(waveform, frequency)
         wv_task.startTask()
         
-        ct_task = CounterOutput("PCI-MIO-16E-4", 0, frequency, 0.5)
+        ct_task = CounterOutput("PCI-6221", 0, frequency, 0.5)
         ct_task.setCounter(len(waveform))
         ct_task.setTrigger(0)
         ct_task.startTask()
@@ -735,14 +735,14 @@ if __name__ == "__main__":
         wv_task.clearTask()
 
     if 0:
-        d_task = DigitalOutput("PCI-6722", 0)
+        d_task = DigitalOutput("PCI-6221", 0)
         d_task.output(1)
         time.sleep(2)
         d_task.output(0)
 
     if 0:
         samples = 10
-        a_task = AnalogInput("PCIe-6321", 0)
+        a_task = AnalogInput("PCI-6221", 0)
         a_task.addChannel(1)
         a_task.configureAcquisition(samples, 1000)
         a_task.startTask()
@@ -753,7 +753,7 @@ if __name__ == "__main__":
         a_task.clearTask()
 
     if 0:
-        ct_task = CounterOutput("PCI-6733", 1, 50000, 0.10)
+        ct_task = CounterOutput("PCI-6221", 1, 50000, 0.10)
         ct_task.setCounter(-1)
         ct_task.startTask()
         time.sleep(60)
@@ -763,17 +763,17 @@ if __name__ == "__main__":
     if 1:
         waveform = [0, 1.0]
         print "1"
-        #wv_task1 = WaveformOutput("PCI-6733", 6)
+        #wv_task1 = WaveformOutput("PCI-6221", 6)
         #wv_task1.setWaveform(waveform, 100000.0, clock="")
         print "2"
-        wv_task2 = WaveformOutput("PCI-6733", 0)
+        wv_task2 = WaveformOutput("PCI-6221", 0)
         wv_task2.setWaveform(waveform, 100000.0)
 
         #wv_task1.startTask()
         wv_task2.startTask()
 
         print "3"
-        ct_task = CounterOutput("PCI-6733", 0, 1000, 0.5)
+        ct_task = CounterOutput("PCI-6221", 0, 1000, 0.5)
         ct_task.setCounter(100)
         ct_task.setTrigger(0)
         ct_task.startTask()
