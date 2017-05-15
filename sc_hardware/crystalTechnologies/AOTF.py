@@ -293,7 +293,7 @@ class AOTF64Bit(AOTF):
             self.aotf_cmd = "AOTF32Bit.py"
 
         self.live = True
-        self.aotf_proc = subprocess.Popen(["c:\python27_32bit\python", self.aotf_cmd], close_fds = True)
+        self.aotf_proc = subprocess.Popen(["c:\anaconda\python", self.aotf_cmd], close_fds = True)
 
         # Wait for connection from the sub-process.
         self.aotf_socket.listen(1)

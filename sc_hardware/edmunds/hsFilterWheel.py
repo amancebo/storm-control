@@ -53,7 +53,7 @@ class HSFW64Bit():
         else:
             hsfw_cmd = "hsFilterWheel32Bit.py"
 
-        self.hsfw_proc = subprocess.Popen(["c:\python27_32bit\python", hsfw_cmd], close_fds = True)
+        self.hsfw_proc = subprocess.Popen(["c:\anaconda\python", hsfw_cmd], close_fds = True)
 
         self.hsfw_socket.listen(1)
         [self.hsfw_conn, self.hsfw_addr] = self.hsfw_socket.accept()

@@ -43,7 +43,7 @@ Traceback (most recent call last):
     sys.exit(info())
   File "c:\Users\Hazen\pyAPT\runner.py", line 24, in inner
     controllers = drv.list_devices()
-  File "c:\Python27\lib\site-packages\pylibftdi-0.13-py2.7.egg\pylibftdi
+  File "c:\Anaconda\lib\site-packages\pylibftdi-0.13-py2.7.egg\pylibftdi
 py", line 168, in list_devices
     msg = "%s (%d)" % (self.get_error_string(), res)
 
