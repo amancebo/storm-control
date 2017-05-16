@@ -62,13 +62,13 @@
 	</parameters>
       </analog_modulation>
 
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6221</board>
-	  <channel type="int">3</channel>
-	</parameters>
-      </mechanical_shutter>
+    <!--   <mechanical_shutter> -->
+	<!-- <uses>daq</uses> -->
+	<!-- <parameters> -->
+	<!--   <board>PCI-6221</board> -->
+	<!--   <channel type="int">3</channel> -->
+    <!-- </parameters> -->
+    <!--   </mechanical_shutter> -->
 
     </channel>
 
@@ -98,13 +98,13 @@
 	</parameters>
       </analog_modulation>
 
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6221</board>
-	  <channel type="int">2</channel>
-	</parameters>
-      </mechanical_shutter>
+    <!--   <mechanical_shutter> -->
+	<!-- <uses>daq</uses> -->
+	<!-- <parameters> -->
+	<!--   <board>PCI-6221</board> -->
+	<!--   <channel type="int">2</channel> -->
+	<!-- </parameters> -->
+    <!--   </mechanical_shutter> -->
 
     </channel>
 
@@ -134,13 +134,13 @@
 	</parameters>
       </analog_modulation>
 
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6221</board>
-	  <channel type="int">1</channel>
-	</parameters>
-      </mechanical_shutter>
+    <!--   <mechanical_shutter> -->
+	<!-- <uses>daq</uses> -->
+	<!-- <parameters> -->
+	<!--   <board>PCI-6221</board> -->
+	<!--   <channel type="int">1</channel> -->
+	<!-- </parameters> -->
+    <!--   </mechanical_shutter> -->
 
     </channel>
 
@@ -167,13 +167,13 @@
 	</parameters>
       </analog_modulation>
 
-      <mechanical_shutter>
-	<uses>daq</uses>
-	<parameters>
-	  <board>PCI-6221</board>
-	  <channel type="int">0</channel>
-	</parameters>
-      </mechanical_shutter>
+    <!--   <mechanical_shutter> -->
+	<!-- <uses>daq</uses> -->
+	<!-- <parameters> -->
+	<!--   <board>PCI-6221</board> -->
+	<!--   <channel type="int">0</channel> -->
+	<!-- </parameters> -->
+    <!--   </mechanical_shutter> -->
 
     </channel>
 

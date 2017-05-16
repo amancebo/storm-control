@@ -32,21 +32,21 @@
     <!--   <module_name type="string">focuslock.storm1FocusLockZ</module_name> -->
     <!-- </focuslock> -->
 
-    <!-- Illumination (lasers, shutters, etc) control. -->
-    <illumination>
-      <class_name type="string">IlluminationControl</class_name>
-      <menu_item type="string">Illumination</menu_item>
-      <module_name type="string">illumination.illuminationControl</module_name>
-      <parameters>
-	<settings_xml type="string">monolake_illumination_settings.xml</settings_xml>
-      </parameters>
-    </illumination>
+    <!-- <!-\- Illumination (lasers, shutters, etc) control. -\-> -->
+    <!-- <illumination> -->
+    <!--   <class_name type="string">IlluminationControl</class_name> -->
+    <!--   <menu_item type="string">Illumination</menu_item> -->
+    <!--   <module_name type="string">illumination.illuminationControl</module_name> -->
+    <!--   <parameters> -->
+	<!--     <settings_xml type="string">monolake_illumination_settings.xml</settings_xml> -->
+    <!--   </parameters> -->
+    <!-- </illumination> -->
 
-    <!-- Joystick controller. -->
-    <joystick>
-      <class_name type="string">AJoystick</class_name>
-      <module_name type="string">joystick.gamepad310JoystickControl</module_name>
-    </joystick>
+    <!-- <!-\- Joystick controller. -\-> -->
+    <!-- <joystick> -->
+    <!--   <class_name type="string">AJoystick</class_name> -->
+    <!--   <module_name type="string">joystick.gamepad310JoystickControl</module_name> -->
+    <!-- </joystick> -->
   
     <!-- Automatic illumination power adjustment. -->
     <progressions>
@@ -66,7 +66,7 @@
     <stage>
       <class_name type="string">AStageControl</class_name>
       <menu_item type="string">Stage Control</menu_item>
-      <module_name type="string">stagecontrol.storm1StageControl</module_name>
+      <module_name type="string">stagecontrol.monolakeStageControl</module_name>
     </stage>
 
     <!-- Remote control of HAL via TCP/IP. -->
