@@ -78,10 +78,10 @@
     <button channel="3" power="0.1">Low</button>
     <button channel="4" power="1.0">Max</button>
     <button channel="4" power="0.1">Low</button>
-    <button channel="5" power="1.0">Max</button>
-    <button channel="5" power="0.1">Low</button>
-    <button channel="6" power="1.0">Max</button>
-    <button channel="6" power="0.1">Low</button>
+    <!-- <button channel="5" power="1.0">Max</button> -->
+    <!-- <button channel="5" power="0.1">Low</button> -->
+    <!-- <button channel="6" power="1.0">Max</button> -->
+    <!-- <button channel="6" power="0.1">Low</button> -->
   </illumination>
 
   <!-- stage settings -->
@@ -142,17 +142,17 @@
   </progressions>
 
   <!-- joystick setting -->
-  <joystick>
-    <hat_step type="float">1.0</hat_step> <!-- step size in um for hat button press -->
-    <joystick_gain type="float-array">25, 2500</joystick_gain>   <!-- max velocity in um/s: valid range 1 to max stage speed -->
-    <joystick_multiplier_value type="float">5</joystick_multiplier_value> <!-- X button multiplier for joystick and focus lock -->
-    <joystick_mode type="string">quadratic</joystick_mode> <!-- linear or quadratic -->
-    <joystick_signx type="float">1.0</joystick_signx>
-    <joystick_signy type="float">-1.0</joystick_signy>
-    <lockt_step type="float">0.025</lockt_step> <!-- focus lock step size in um -->
-    <min_offset type="float">0.1</min_offset> <!-- min joystick offset to be non-zero (0.0 - 1.0) -->
-    <xy_swap type="int">0</xy_swap> <!-- swap x and y axises -->
-  </joystick>
+  <!-- <joystick> -->
+  <!--   <hat_step type="float">1.0</hat_step> <!-\- step size in um for hat button press -\-> -->
+  <!--   <joystick_gain type="float-array">25, 2500</joystick_gain>   <!-\- max velocity in um/s: valid range 1 to max stage speed -\-> -->
+  <!--   <joystick_multiplier_value type="float">5</joystick_multiplier_value> <!-\- X button multiplier for joystick and focus lock -\-> -->
+  <!--   <joystick_mode type="string">quadratic</joystick_mode> <!-\- linear or quadratic -\-> -->
+  <!--   <joystick_signx type="float">1.0</joystick_signx> -->
+  <!--   <joystick_signy type="float">-1.0</joystick_signy> -->
+  <!--   <lockt_step type="float">0.025</lockt_step> <!-\- focus lock step size in um -\-> -->
+  <!--   <min_offset type="float">0.1</min_offset> <!-\- min joystick offset to be non-zero (0.0 - 1.0) -\-> -->
+  <!--   <xy_swap type="int">0</xy_swap> <!-\- swap x and y axises -\-> -->
+  <!-- </joystick> -->
 
   <!-- steve settings -->
   <mosaic>

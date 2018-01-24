@@ -25,7 +25,7 @@ import stagecontrol.stageControl as stageControl
 #
 class AStageControl(stageControl.StageControl):
     def __init__(self, hardware, parameters, parent = None):
-        self.stage = stageThread.QStageThread(prior.Prior("COM6",
+        self.stage = stageThread.QStageThread(prior.Prior("COM9",
                                                           baudrate = 9600,
                                                           wait_time = 0.02),
                                               move_update_freq = 200,
