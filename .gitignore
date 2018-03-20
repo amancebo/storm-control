@@ -2,6 +2,16 @@
 ## log-files
 #################
 *.log
+*.out*
+
+##############
+## data files
+##############
+*.dax
+*.inf
+*.off
+*.power
+/storm_control/test/data/*.xml
 
 ############
 ## Windows
@@ -12,6 +22,15 @@ Thumbs.db
 
 # Folder config file
 Desktop.ini
+
+#####
+## C
+#####
+*.a
+*.o
+*.so
+*.so.*
+*.os
 
 #############
 ## Python
@@ -59,3 +78,4 @@ proguard/
 
 # Metadata
 .metadata
+
