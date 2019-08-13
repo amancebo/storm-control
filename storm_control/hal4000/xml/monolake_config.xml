@@ -19,7 +19,7 @@
       
       (2) If it is False we also don't check whether messages are valid.
   -->
-  <strict type="boolean">False</strict>
+  <strict type="boolean">True</strict>
   
   <!--
       Define the modules to use for this setup.
@@ -78,9 +78,11 @@
 	<flip_vertical desc="Flip image vertical (mosaic)" type="boolean">False</flip_vertical>
 	<transpose desc="Transpose image (mosaic)" type="boolean">False</transpose>
 
-	<objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective>
+	<objective desc="Current objective" type="string" values="obj1">obj1</objective>
 	<obj1 desc="Objective 1" type="custom">100x,0.160,0.0,0.0</obj1>
-	<obj2 desc="Objective 2" type="custom">4x,4.0,0.0,0.0</obj2>	
+	<!-- <objective desc="Current objective" type="string" values="obj1,obj2">obj1</objective> -->
+	<!-- <obj1 desc="Objective 1" type="custom">100x,0.160,0.0,0.0</obj1> -->
+	<!-- <obj2 desc="Objective 2" type="custom">4x,4.0,0.0,0.0</obj2>	 -->
       </parameters>
     </mosaic>
 
@@ -116,36 +118,36 @@
       <class_name type="string">Camera</class_name>
       <module_name type="string">storm_control.hal4000.camera.camera</module_name>
       <camera>
-	<master type="boolean">True</master>
-	<class_name type="string">AndorCameraControl</class_name>
-	<module_name type="string">storm_control.hal4000.camera.andorCameraControl</module_name>
-	<parameters>
+    	<master type="boolean">True</master>
+    	<class_name type="string">AndorCameraControl</class_name>
+    	<module_name type="string">storm_control.hal4000.camera.andorCameraControl</module_name>
+    	<parameters>
 	  
-	  <!-- The location of the Andor DLL. -->
-	  <andor_path type="string">C:/Program Files/Andor SOLIS/</andor_path>
+    	  <!-- The location of the Andor DLL. -->
+    	  <andor_path type="string">C:/Program Files/Andor Driver Pack 2/</andor_path>
 
-	  <!-- The name of the Andor DLL. -->
-	  <andor_dll type="string">atmcd64d.dll</andor_dll>
+    	  <!-- The name of the Andor DLL. -->
+    	  <andor_dll type="string">atmcd64d.dll</andor_dll>
 
-	  <!-- Which camera to use -->
-	  <camera_id type="int">0</camera_id>
+    	  <!-- Which camera to use -->
+    	  <camera_id type="int">0</camera_id>
 
-	  <!-- These are the display defaults, not the camera range. -->
-	  <default_max type="int">2000</default_max> 
-	  <default_min type="int">100</default_min>
-	  <flip_horizontal type="boolean">False</flip_horizontal>
-	  <flip_vertical type="boolean">False</flip_vertical>
-	  <transpose type="boolean">False</transpose>
+    	  <!-- These are the display defaults, not the camera range. -->
+    	  <default_max type="int">500</default_max>
+    	  <default_min type="int">0</default_min>
+    	  <flip_horizontal type="boolean">False</flip_horizontal>
+    	  <flip_vertical type="boolean">False</flip_vertical>
+    	  <transpose type="boolean">False</transpose>
 
-	  <!-- These can be changed / editted. -->
+    	  <!-- These can be changed / editted. -->
 
-	  <!-- This is the extension to use (if any) when saving data from this camera. -->
-	  <extension type="string"></extension>
+    	  <!-- This is the extension to use (if any) when saving data from this camera. -->
+    	  <extension type="string">.dax</extension>
 	  
-	  <!-- Whether or not data from this camera is saved during filming. -->
-	  <saved type="boolean">True</saved>
+    	  <!-- Whether or not data from this camera is saved during filming. -->
+    	  <saved type="boolean">True</saved>
 
-	</parameters>
+    	</parameters>
       </camera>
     </camera1>
 
@@ -164,8 +166,8 @@
       <class_name type="string">CoherentObis</class_name>
 
       <configuration>
-	<port type="string">COM7</port>
-	<used_during_filming type="boolean">True</used_during_filming>
+    	<port type="string">COM7</port>
+    	<used_during_filming type="boolean">True</used_during_filming>
       </configuration>
     </obis488>
 
@@ -174,8 +176,8 @@
       <class_name type="string">CoherentObis</class_name>
 
       <configuration>
-	<port type="string">COM8</port>
-	<used_during_filming type="boolean">True</used_during_filming>
+    	<port type="string">COM8</port>
+    	<used_during_filming type="boolean">True</used_during_filming>
       </configuration>
     </obis561>
 
@@ -184,8 +186,8 @@
       <class_name type="string">CoherentObis</class_name>
 
       <configuration>
-	<port type="string">COM6</port>
-	<used_during_filming type="boolean">True</used_during_filming>
+    	<port type="string">COM6</port>
+    	<used_during_filming type="boolean">True</used_during_filming>
       </configuration>
     </obis640>
 
@@ -242,18 +244,6 @@
       </configuration>
 
     </daq>
-
-    <coherent_obis>
-      <module_name type="string">storm_control.sc_hardware.coherent.coherentModule</module_name>
-      <class_name type="string">CoherentObis</class_name>
-      <configuration>
-	<used_during_filming type="boolean">True</used_during_filming>
-	<python32_exe type="string">C:/Anaconda/envs/py3/python.exe</python32_exe>
-
-
-      </configuration>
-
-    </coherent_obis>
 
     <!-- Illumination (lasers, shutters, etc) control GUI. -->
     <illumination>
@@ -319,27 +309,27 @@
 
     </illumination>
 
-    <!-- Prior stage -->
-    <prior_stage>
-      <module_name type="string">storm_control.sc_hardware.prior.priorModule</module_name>
-      <class_name type="string">PriorController</class_name>
+    <!-- <!-\- Prior stage -\-> -->
+    <!-- <prior_stage> -->
+    <!--   <module_name type="string">storm_control.sc_hardware.prior.priorModule</module_name> -->
+    <!--   <class_name type="string">PriorController</class_name> -->
 
-      <configuration>
-	<!-- baudrate obtained from storm_control/sc_hardware/prior/prior.py -->
-	<baudrate type="int">115200</baudrate>
-	<port type="string"></port>
-	<velocity type="float">2.0</velocity>
-      </configuration>
-    </prior_stage>
+    <!--   <configuration> -->
+    <!-- 	<!-\- baudrate obtained from storm_control/sc_hardware/prior/prior.py -\-> -->
+    <!-- 	<baudrate type="int">3600</baudrate> -->
+    <!-- 	<port type="string">COM9</port> -->
+    <!-- 	<velocity type="float">2.0</velocity> -->
+    <!--   </configuration> -->
+    <!-- </prior_stage> -->
 
-    <!-- Stage control GUI -->
-    <stage>
-      <class_name type="string">Stage</class_name>
-      <module_name type="string">storm_control.hal4000.stage.stage</module_name>
-      <configuration>
-	<stage_functionality type="string">prior_stage</stage_functionality>
-      </configuration>
-    </stage>
+    <!-- <!-\- Stage control GUI -\-> -->
+    <!-- <stage> -->
+    <!--   <class_name type="string">Stage</class_name> -->
+    <!--   <module_name type="string">storm_control.hal4000.stage.stage</module_name> -->
+    <!--   <configuration> -->
+    <!-- 	<stage_functionality type="string">prior_stage</stage_functionality> -->
+    <!--   </configuration> -->
+    <!-- </stage> -->
 
     <!-- TCP control -->
     <tcp_control>
